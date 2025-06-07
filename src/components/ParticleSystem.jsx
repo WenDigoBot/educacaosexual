@@ -2,29 +2,29 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 
 const baseParticles = [
-  { emoji: '💊', size: 'text-2xl', weight: 3 }, 
-  { emoji: '🩺', size: 'text-3xl', weight: 2 }, 
-  { emoji: '💉', size: 'text-2xl', weight: 3 }, 
-  { emoji: '🫀', size: 'text-3xl', weight: 2 }, 
-  { emoji: '🦠', size: 'text-xl', weight: 3 }, 
-  { emoji: '🔬', size: 'text-2xl', weight: 1 }, 
-  { emoji: '⚕️', size: 'text-3xl', weight: 2 }, 
-  { emoji: '🧬', size: 'text-2xl', weight: 2 }, 
-  { emoji: '🩹', size: 'text-2xl', weight: 3 }, 
-  { emoji: '❤️‍🩹', size: 'text-3xl', weight: 2 },
-  { emoji: '⚤', size: 'text-2xl', weight: 1 }, 
-  { emoji: '⚧️', size: 'text-3xl', weight: 1 }, 
-  { emoji: '🌈', size: 'text-3xl', weight: 2 }, 
-  { emoji: '🩸', size: 'text-2xl', weight: 2 }, 
-  { emoji: '🧑‍🏫', size: 'text-3xl', weight: 1 }, 
-  { emoji: '📖', size: 'text-2xl', weight: 2 }, 
-  { emoji: '💡', size: 'text-3xl', weight: 1 }, 
-  { emoji: '🛡️', size: 'text-2xl', weight: 2 },
-  { emoji: '🧠', size: 'text-3xl', weight: 1 }, // Cérebro (conhecimento)
-  { emoji: '🗣️', size: 'text-2xl', weight: 1 }, // Pessoa falando (comunicação)
-  { emoji: '🫂', size: 'text-3xl', weight: 1 }, // Abraço (apoio, respeito)
-  { emoji: '✅', size: 'text-xl', weight: 1 }, // Check (consentimento)
-  { emoji: '🚫', size: 'text-xl', weight: 1 }, // Proibido (limites)
+  { emoji: '💊', size: 'text-2xl md:text-3xl', weight: 3 }, 
+  { emoji: '🩺', size: 'text-3xl md:text-4xl', weight: 2 }, 
+  { emoji: '💉', size: 'text-2xl md:text-3xl', weight: 3 }, 
+  { emoji: '🫀', size: 'text-3xl md:text-4xl', weight: 2 }, 
+  { emoji: '🦠', size: 'text-xl md:text-2xl', weight: 3 }, 
+  { emoji: '🔬', size: 'text-2xl md:text-3xl', weight: 1 }, 
+  { emoji: '⚕️', size: 'text-3xl md:text-4xl', weight: 2 }, 
+  { emoji: '🧬', size: 'text-2xl md:text-3xl', weight: 2 }, 
+  { emoji: '🩹', size: 'text-2xl md:text-3xl', weight: 3 }, 
+  { emoji: '❤️‍🩹', size: 'text-3xl md:text-4xl', weight: 2 },
+  { emoji: '⚤', size: 'text-2xl md:text-3xl', weight: 1 }, 
+  { emoji: '⚧️', size: 'text-3xl md:text-4xl', weight: 1 }, 
+  { emoji: '🌈', size: 'text-3xl md:text-4xl', weight: 2 }, 
+  { emoji: '🩸', size: 'text-2xl md:text-3xl', weight: 2 }, 
+  { emoji: '🧑‍🏫', size: 'text-3xl md:text-4xl', weight: 1 }, 
+  { emoji: '📖', size: 'text-2xl md:text-3xl', weight: 2 }, 
+  { emoji: '💡', size: 'text-3xl md:text-4xl', weight: 1 }, 
+  { emoji: '🛡️', size: 'text-2xl md:text-3xl', weight: 2 },
+  { emoji: '🧠', size: 'text-3xl md:text-4xl', weight: 1 }, 
+  { emoji: '🗣️', size: 'text-2xl md:text-3xl', weight: 1 }, 
+  { emoji: '🫂', size: 'text-3xl md:text-4xl', weight: 1 }, 
+  { emoji: '✅', size: 'text-xl md:text-2xl', weight: 1 }, 
+  { emoji: '🚫', size: 'text-xl md:text-2xl', weight: 1 }, 
 ];
 
 const ParticleSystem = () => {
@@ -47,28 +47,29 @@ const ParticleSystem = () => {
         id: id + Math.random(), // Unique key for re-triggering animation
         emoji: particleType.emoji,
         size: particleType.size,
-        xInitial: Math.random() * 100,
-        yInitial: Math.random() * 100,
-        duration: 20 + Math.random() * 25,
-        delay: Math.random() * 15,
-        driftX: (Math.random() - 0.5) * 80, // Increased drift
-        driftY: (Math.random() - 0.5) * 80, // Increased drift
+        xInitial: Math.random() * 100, // Posição inicial aleatória em toda a largura da tela
+        yInitial: Math.random() * 100, // Posição inicial aleatória em toda a altura da tela
+        duration: 25 + Math.random() * 35, // Duração mais longa para movimento mais suave
+        delay: Math.random() * 20, // Maior variação no atraso para evitar sincronização
+        driftX: (Math.random() - 0.5) * 120, // Maior amplitude de movimento horizontal
+        driftY: (Math.random() - 0.5) * 120, // Maior amplitude de movimento vertical
         rotation: (Math.random() - 0.5) * 720,
-        scaleMin: 0.6 + Math.random() * 0.4, // Random initial scale
-        scaleMax: 1.0 + Math.random() * 0.6, // Random max scale
-        opacityMin: 0.03 + Math.random() * 0.07, // Random min opacity
-        opacityMax: 0.1 + Math.random() * 0.15,   // Random max opacity
+        scaleMin: 0.7 + Math.random() * 0.4, // Escala mínima maior para melhor visibilidade
+        scaleMax: 1.2 + Math.random() * 0.8, // Escala máxima maior para melhor visibilidade
+        opacityMin: 0.08 + Math.random() * 0.12, // Opacidade mínima maior para melhor visibilidade
+        opacityMax: 0.2 + Math.random() * 0.25,   // Opacidade máxima maior para melhor visibilidade
       };
     };
     
-    const initialParticles = Array.from({ length: 30 }, (_, i) => generateParticle(i));
+    // Aumentar o número de partículas para cobrir mais área da tela
+    const initialParticles = Array.from({ length: 50 }, (_, i) => generateParticle(i));
     setParticleElements(initialParticles);
 
     const intervalId = setInterval(() => {
       setParticleElements(prevParticles => 
         prevParticles.map((_, i) => generateParticle(i + Date.now())) // Regenerate with new IDs
       );
-    }, 25000); // Regenerate all particles periodically
+    }, 30000); // Regenerar todas as partículas periodicamente (tempo aumentado para animação mais suave)
 
     return () => clearInterval(intervalId);
   }, [weightedParticles]);
@@ -92,17 +93,68 @@ const ParticleSystem = () => {
             y: 0,
           }}
           animate={{
-            x: [0, particle.driftX / 2, particle.driftX, particle.driftX / 2, 0],
-            y: [0, particle.driftY / 2, particle.driftY, particle.driftY / 2, 0],
-            rotate: [0, particle.rotation / 2, particle.rotation, particle.rotation / 2, 0],
-            scale: [particle.scaleMin, particle.scaleMax, particle.scaleMin, particle.scaleMax * 0.8, particle.scaleMin],
-            opacity: [particle.opacityMin, particle.opacityMax, particle.opacityMin, particle.opacityMax * 0.7, particle.opacityMin],
+            // Curva de animação mais complexa para movimento mais natural e suave
+            x: [
+              0, 
+              particle.driftX * 0.2, 
+              particle.driftX * 0.5, 
+              particle.driftX * 0.8, 
+              particle.driftX, 
+              particle.driftX * 0.8, 
+              particle.driftX * 0.5, 
+              particle.driftX * 0.2, 
+              0
+            ],
+            y: [
+              0, 
+              particle.driftY * 0.2, 
+              particle.driftY * 0.5, 
+              particle.driftY * 0.8, 
+              particle.driftY, 
+              particle.driftY * 0.8, 
+              particle.driftY * 0.5, 
+              particle.driftY * 0.2, 
+              0
+            ],
+            rotate: [
+              0, 
+              particle.rotation * 0.25, 
+              particle.rotation * 0.5, 
+              particle.rotation * 0.75, 
+              particle.rotation, 
+              particle.rotation * 0.75, 
+              particle.rotation * 0.5, 
+              particle.rotation * 0.25, 
+              0
+            ],
+            scale: [
+              particle.scaleMin, 
+              particle.scaleMin * 1.2, 
+              particle.scaleMax, 
+              particle.scaleMax * 0.9, 
+              particle.scaleMin * 1.1, 
+              particle.scaleMax * 0.8, 
+              particle.scaleMin * 1.3, 
+              particle.scaleMax * 0.7, 
+              particle.scaleMin
+            ],
+            opacity: [
+              particle.opacityMin, 
+              particle.opacityMax * 0.7, 
+              particle.opacityMax, 
+              particle.opacityMax * 0.8, 
+              particle.opacityMin * 1.5, 
+              particle.opacityMax * 0.9, 
+              particle.opacityMin * 1.2, 
+              particle.opacityMax * 0.6, 
+              particle.opacityMin
+            ],
           }}
           transition={{
             duration: particle.duration,
             repeat: Infinity,
             delay: particle.delay,
-            ease: "linear", 
+            ease: "easeInOut", // Mudança para easeInOut para movimento mais suave
           }}
         >
           {particle.emoji}
@@ -113,3 +165,4 @@ const ParticleSystem = () => {
 };
 
 export default ParticleSystem;
+
