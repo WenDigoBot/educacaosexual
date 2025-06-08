@@ -4,7 +4,7 @@ import { X, Plus, Edit, Trash2, Save, Undo as Cancel } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
 
-const AdminPanel = ({ curiosities, addCuriosity, editCuriosity, deleteCuriosity, onClose }) => {
+const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({ text: '', isTrue: true, revelation: '' });
@@ -16,7 +16,7 @@ const AdminPanel = ({ curiosities, addCuriosity, editCuriosity, deleteCuriosity,
         setFormData({ 
           text: currentCuriosity.text, 
           isTrue: currentCuriosity.isTrue,
-          revelation: currentCuriosity.revelation || (currentCuriosity.isTrue ? "Isso mesmo! " : "Na verdade... "),
+          revelation: currentCuriosity.revelation || (currentCuriosity.isTrue ? "Isso mesmo! " : "Na verdade... ")
         });
       }
     } else {
@@ -25,13 +25,14 @@ const AdminPanel = ({ curiosities, addCuriosity, editCuriosity, deleteCuriosity,
   }, [editingId, curiosities]);
 
   useEffect(() => {
-    if (!editingId) {
+    if (!editingId) { // Only update default revelation for new entries or when isTrue changes
         setFormData(prev => ({
             ...prev,
             revelation: prev.isTrue ? "Isso mesmo! " : "Na verdade... "
         }));
     }
   }, [formData.isTrue, editingId]);
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -45,14 +46,14 @@ const AdminPanel = ({ curiosities, addCuriosity, editCuriosity, deleteCuriosity,
     }
 
     if (editingId) {
-      editCuriosity(editingId, formData);
+      onEdit(editingId, formData);
       toast({
         title: "Sucesso!",
         description: "Curiosidade editada com sucesso!"
       });
       setEditingId(null);
     } else {
-      addCuriosity(formData);
+      onAdd(formData);
       toast({
         title: "Sucesso!",
         description: "Nova curiosidade adicionada!"
@@ -65,11 +66,11 @@ const AdminPanel = ({ curiosities, addCuriosity, editCuriosity, deleteCuriosity,
 
   const handleEdit = (curiosity) => {
     setEditingId(curiosity.id);
-    setShowAddForm(false);
+    setShowAddForm(false); // Close add form if open
   };
 
   const handleDelete = (id) => {
-    deleteCuriosity(id);
+    onDelete(id);
     toast({
       title: "Removido",
       description: "Curiosidade removida com sucesso!"
@@ -113,7 +114,7 @@ const AdminPanel = ({ curiosities, addCuriosity, editCuriosity, deleteCuriosity,
               <Button
                 onClick={() => {
                   setShowAddForm(true);
-                  setFormData({ text: '', isTrue: true, revelation: 'Isso mesmo! ' });
+                  setFormData({ text: '', isTrue: true, revelation: 'Isso mesmo! ' }); // Reset form for new entry
                 }}
                 className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white"
               >
@@ -260,4 +261,3 @@ const AdminPanel = ({ curiosities, addCuriosity, editCuriosity, deleteCuriosity,
 };
 
 export default AdminPanel;
-

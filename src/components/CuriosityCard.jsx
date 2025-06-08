@@ -27,6 +27,8 @@ const CuriosityCard = ({ curiosity, onNext, isLast }) => {
       setIsFlipped(true);
     } else {
       onNext();
+      // Não resetar isFlipped aqui, pois o componente será desmontado/remontado
+      // e o estado de flip será resetado pela key no App.jsx
     }
   };
   

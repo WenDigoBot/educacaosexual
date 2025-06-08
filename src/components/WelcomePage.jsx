@@ -88,7 +88,7 @@ const WelcomePage = ({ onStart }) => {
           >
             <div className="space-y-2 sm:space-y-3 text-sm sm:text-base md:text-lg">
               <motion.p 
-                className="font-semibold text-green-400 text-xl sm:text-2xl md:text-3xl"
+                className="font-semibold text-green-400"
                 animate={{ scale: [1, 1.1, 1] }}
                 transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                 style={{ textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}
@@ -96,13 +96,13 @@ const WelcomePage = ({ onStart }) => {
                 ❤️
               </motion.p>
               <p 
-                className="font-semibold text-blue-400 text-lg sm:text-xl md:text-2xl"
+                className="font-semibold text-blue-400"
                 style={{ textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}
               >
                 Descubra curiosidades importantes sobre saúde sexual e bem-estar. Teste seus conhecimentos e aprenda de forma interativa!
               </p>
               <motion.p 
-                className="font-semibold text-purple-400 text-xl sm:text-2xl md:text-3xl"
+                className="font-semibold text-purple-400"
                 animate={{ scale: [1, 1.1, 1] }}
                 transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 1 }}
                 style={{ textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}

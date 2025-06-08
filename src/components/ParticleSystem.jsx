@@ -2,29 +2,29 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 
 const baseParticles = [
-  { emoji: '💊', size: 'text-3xl md:text-4xl', weight: 3 }, 
-  { emoji: '🩺', size: 'text-4xl md:text-5xl', weight: 2 }, 
-  { emoji: '💉', size: 'text-3xl md:text-4xl', weight: 3 }, 
-  { emoji: '🫀', size: 'text-4xl md:text-5xl', weight: 2 }, 
-  { emoji: '🦠', size: 'text-2xl md:text-3xl', weight: 3 }, 
-  { emoji: '🔬', size: 'text-3xl md:text-4xl', weight: 1 }, 
-  { emoji: '⚕️', size: 'text-4xl md:text-5xl', weight: 2 }, 
-  { emoji: '🧬', size: 'text-3xl md:text-4xl', weight: 2 }, 
-  { emoji: '🩹', size: 'text-3xl md:text-4xl', weight: 3 }, 
-  { emoji: '❤️‍🩹', size: 'text-4xl md:text-5xl', weight: 2 },
-  { emoji: '⚤', size: 'text-3xl md:text-4xl', weight: 1 }, 
-  { emoji: '⚧️', size: 'text-4xl md:text-5xl', weight: 1 }, 
-  { emoji: '🌈', size: 'text-4xl md:text-5xl', weight: 2 }, 
-  { emoji: '🩸', size: 'text-3xl md:text-4xl', weight: 2 }, 
-  { emoji: '🧑‍🏫', size: 'text-4xl md:text-5xl', weight: 1 }, 
-  { emoji: '📖', size: 'text-3xl md:text-4xl', weight: 2 }, 
-  { emoji: '💡', size: 'text-4xl md:text-5xl', weight: 1 }, 
-  { emoji: '🛡️', size: 'text-3xl md:text-4xl', weight: 2 },
-  { emoji: '🧠', size: 'text-4xl md:text-5xl', weight: 1 }, 
-  { emoji: '🗣️', size: 'text-3xl md:text-4xl', weight: 1 }, 
-  { emoji: '🫂', size: 'text-4xl md:text-5xl', weight: 1 }, 
-  { emoji: '✅', size: 'text-2xl md:text-3xl', weight: 1 }, 
-  { emoji: '🚫', size: 'text-2xl md:text-3xl', weight: 1 }, 
+  { emoji: '💊', size: 'text-2xl md:text-3xl', weight: 3 }, 
+  { emoji: '🩺', size: 'text-3xl md:text-4xl', weight: 2 }, 
+  { emoji: '💉', size: 'text-2xl md:text-3xl', weight: 3 }, 
+  { emoji: '🫀', size: 'text-3xl md:text-4xl', weight: 2 }, 
+  { emoji: '🦠', size: 'text-xl md:text-2xl', weight: 3 }, 
+  { emoji: '🔬', size: 'text-2xl md:text-3xl', weight: 1 }, 
+  { emoji: '⚕️', size: 'text-3xl md:text-4xl', weight: 2 }, 
+  { emoji: '🧬', size: 'text-2xl md:text-3xl', weight: 2 }, 
+  { emoji: '🩹', size: 'text-2xl md:text-3xl', weight: 3 }, 
+  { emoji: '❤️‍🩹', size: 'text-3xl md:text-4xl', weight: 2 },
+  { emoji: '⚤', size: 'text-2xl md:text-3xl', weight: 1 }, 
+  { emoji: '⚧️', size: 'text-3xl md:text-4xl', weight: 1 }, 
+  { emoji: '🌈', size: 'text-3xl md:text-4xl', weight: 2 }, 
+  { emoji: '🩸', size: 'text-2xl md:text-3xl', weight: 2 }, 
+  { emoji: '🧑‍🏫', size: 'text-3xl md:text-4xl', weight: 1 }, 
+  { emoji: '📖', size: 'text-2xl md:text-3xl', weight: 2 }, 
+  { emoji: '💡', size: 'text-3xl md:text-4xl', weight: 1 }, 
+  { emoji: '🛡️', size: 'text-2xl md:text-3xl', weight: 2 },
+  { emoji: '🧠', size: 'text-3xl md:text-4xl', weight: 1 }, 
+  { emoji: '🗣️', size: 'text-2xl md:text-3xl', weight: 1 }, 
+  { emoji: '🫂', size: 'text-3xl md:text-4xl', weight: 1 }, 
+  { emoji: '✅', size: 'text-xl md:text-2xl', weight: 1 }, 
+  { emoji: '🚫', size: 'text-xl md:text-2xl', weight: 1 }, 
 ];
 
 const ParticleSystem = () => {
@@ -56,8 +56,8 @@ const ParticleSystem = () => {
         rotation: (Math.random() - 0.5) * 720,
         scaleMin: 0.7 + Math.random() * 0.4, // Escala mínima maior para melhor visibilidade
         scaleMax: 1.2 + Math.random() * 0.8, // Escala máxima maior para melhor visibilidade
-        opacityMin: 0.15 + Math.random() * 0.2, // Opacidade mínima maior para melhor visibilidade
-        opacityMax: 0.35 + Math.random() * 0.35,   // Opacidade máxima maior para melhor visibilidade
+        opacityMin: 0.08 + Math.random() * 0.12, // Opacidade mínima maior para melhor visibilidade
+        opacityMax: 0.2 + Math.random() * 0.25,   // Opacidade máxima maior para melhor visibilidade
       };
     };
     

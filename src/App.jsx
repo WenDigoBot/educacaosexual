@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Settings, Heart, Shield, Brain } from 'lucide-react';
 import CuriosityCard from '@/components/CuriosityCard';
@@ -12,52 +12,40 @@ const API_BASE_URL = '/.netlify/functions';
 
 const initialCuriosities = [
   {
-    id: 1,
-    text: "Usar duas camisinhas ao mesmo tempo protege mais.",
-    isTrue: false,
-    revelation: "Cuidado com essa ideia! Usar duas camisinhas ao mesmo tempo aumenta o atrito entre elas e pode causar rompimentos, diminuindo a proteção."
-  },
-  {
-    id: 2,
-    text: "Só se pega ISTs se tiver relação sexual com penetração.",
-    isTrue: false,
-    revelation: "Nem sempre é assim! Algumas ISTs podem ser transmitidas apenas com o contato de mucosas ou fluidos corporais — penetração não é obrigatória para o risco existir."
-  },
-  {
-    id: 3,
-    text: "A camisinha previne contra gravidez e ISTs.",
+    id: 'initial-1',
+    text: "O preservativo masculino tem 98% de eficácia quando usado corretamente.",
     isTrue: true,
-    revelation: "Correto! A camisinha, quando usada da forma certa, é extremamente eficaz na prevenção da gravidez e na proteção contra ISTs."
+    revelation: "Isso mesmo! Quando usado de forma consistente e correta, o preservativo é altamente eficaz na prevenção da gravidez e ISTs."
   },
   {
-    id: 4,
-    text: "Pessoas que têm ISTs sempre apresentam sintomas.",
+    id: 'initial-2',
+    text: "A pílula anticoncepcional protege contra todas as ISTs.",
     isTrue: false,
-    revelation: "Engano comum! Muitas ISTs não apresentam sinais visíveis e só são detectadas com exames. Por isso, é importante se testar regularmente."
+    revelation: "Na verdade, a pílula anticoncepcional é um método hormonal que previne a gravidez, mas não oferece proteção contra Infecções Sexualmente Transmissíveis (ISTs). Para proteção contra ISTs, o uso de preservativos é essencial."
   },
   {
-    id: 5,
-    text: "A primeira vez não engravida.",
-    isTrue: false,
-    revelation: "Fique atento! A gravidez pode acontecer em qualquer relação sexual desprotegida — inclusive na primeira vez."
-  },
-  {
-    id: 6,
-    text: "Tomar banho após o sexo evita gravidez.",
-    isTrue: false,
-    revelation: "Esse é um mito perigoso! Tomar banho não impede uma possível gravidez. Apenas métodos contraceptivos seguros oferecem proteção real."
-  },
-  {
-    id: 7,
-    text: "Sexo oral pode transmitir ISTs.",
+    id: 'initial-3',
+    text: "É possível engravidar durante a menstruação.",
     isTrue: true,
-    revelation: "Sim, pode sim! ISTs como sífilis, herpes e HPV podem ser transmitidas pelo sexo oral sem proteção. Usar preservativo também é necessário aqui."
+    revelation: "Isso mesmo! Embora menos provável, a ovulação pode ocorrer perto do período menstrual ou o espermatozoide pode sobreviver no corpo por alguns dias, tornando a gravidez possível."
   },
   {
-    id: 8,
-    text: "Consentimento é essencial em qualquer relação.",
+    id: 'initial-4',
+    text: "O HPV pode causar câncer de colo do útero.",
     isTrue: true,
-    revelation: "Isso é fundamental! Toda relação deve ser baseada no respeito mútuo e no consentimento claro de todas as pessoas envolvidas."
+    revelation: "Isso mesmo! Certos tipos de HPV são a principal causa de câncer de colo do útero. A vacinação e exames preventivos são importantes."
+  },
+  {
+    id: 'initial-5',
+    text: "Fazer xixi após a relação sexual previne 100% das infecções urinárias.",
+    isTrue: false,
+    revelation: "Na verdade, urinar após a relação sexual pode ajudar a eliminar bactérias da uretra, reduzindo o risco de infecção urinária, mas não garante 100% de prevenção. Outras medidas de higiene também são importantes."
+  },
+  {
+    id: 'initial-6',
+    text: "A camisinha feminina é tão eficaz quanto a masculina.",
+    isTrue: true,
+    revelation: "Isso mesmo! Quando usada corretamente, a camisinha feminina oferece um nível de proteção similar à masculina contra gravidez e ISTs."
   }
 ];
 
@@ -70,19 +58,46 @@ const backgroundGradients = [
   ['#0f766e', '#064e3b', '#059669']  
 ];
 
+const cardVariants = {
+  enter: (direction) => {
+    return {
+      x: direction > 0 ? 300 : -300,
+      opacity: 0,
+      scale: 0.8
+    };
+  },
+  center: {
+    x: 0,
+    opacity: 1,
+    scale: 1,
+    transition: {
+      duration: 0.5,
+      ease: "easeOut"
+    }
+  },
+  exit: (direction) => {
+    return {
+      x: direction < 0 ? 300 : -300,
+      opacity: 0,
+      scale: 0.8,
+      transition: {
+        duration: 0.5,
+        ease: "easeIn"
+      }
+    };
+  }
+};
+
 function App() {
-  // Estados principais
   const [currentView, setCurrentView] = useState('welcome'); // 'welcome', 'curiosities', 'admin'
   const [curiosities, setCuriosities] = useState(initialCuriosities);
   
-  // Estados para curiosidades
   const [currentIndex, setCurrentIndex] = useState(0);
   const [viewedCount, setViewedCount] = useState(1);
   const [backgroundIndex, setBackgroundIndex] = useState(0);
   const [showFinalMessage, setShowFinalMessage] = useState(false);
   const [direction, setDirection] = useState(1);
   
-  // Estados para transições
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [prevBackgroundIndex, setPrevBackgroundIndex] = useState(0);
   const [nextBackgroundIndex, setNextBackgroundIndex] = useState(0);
@@ -95,10 +110,16 @@ function App() {
         const data = await response.json();
         if (data.length > 0) {
           setCuriosities(data);
+        } else {
+          setCuriosities(initialCuriosities); // Fallback para curiosidades iniciais se o banco estiver vazio
         }
+      } else {
+        console.error('Erro ao buscar curiosidades:', response.statusText);
+        setCuriosities(initialCuriosities); // Fallback em caso de erro na requisição
       }
     } catch (error) {
       console.error('Erro ao buscar curiosidades:', error);
+      setCuriosities(initialCuriosities); // Fallback em caso de erro de rede/parsing
     }
   };
 
@@ -106,7 +127,6 @@ function App() {
     fetchCuriosities();
   }, []);
 
-  // NAVEGAÇÃO PRINCIPAL
   const handleStartJourney = () => {
     setCurrentView('curiosities');
   };
@@ -119,7 +139,6 @@ function App() {
     setCurrentView('curiosities');
   };
 
-  // FUNÇÕES DE CURIOSIDADES
   const handleNext = () => {
     if (currentIndex < curiosities.length - 1) {
       setDirection(1);
@@ -163,7 +182,6 @@ function App() {
     }
   };
 
-  // FUNÇÕES CRUD (SEM SENHA NO FRONTEND)
   const addCuriosity = async (newCuriosity) => {
     try {
       const response = await fetch(`${API_BASE_URL}/curiosities`, {
@@ -180,6 +198,7 @@ function App() {
         if (showFinalMessage && curiosities.length === 0) {
           setShowFinalMessage(false);
         }
+        fetchCuriosities(); // Recarrega as curiosidades para garantir consistência
       } else {
         const error = await response.json();
         throw new Error(error.error || 'Erro ao adicionar curiosidade');
@@ -203,6 +222,7 @@ function App() {
         setCuriosities(prev => 
           prev.map(c => c.id === id ? { ...c, ...updatedCuriosity } : c)
         );
+        fetchCuriosities(); // Recarrega as curiosidades para garantir consistência
       } else {
         const error = await response.json();
         throw new Error(error.error || 'Erro ao editar curiosidade');
@@ -228,6 +248,7 @@ function App() {
         } else if (currentIndex >= newCuriosities.length) {
           setCurrentIndex(Math.max(0, newCuriosities.length - 1));
         }
+        fetchCuriosities(); // Recarrega as curiosidades para garantir consistência
       } else {
         const error = await response.json();
         throw new Error(error.error || 'Erro ao deletar curiosidade');
@@ -237,7 +258,6 @@ function App() {
     }
   };
 
-  // FUNÇÕES DE ESTILO
   const interpolateColors = (colorA, colorB, factor) => {
     const hexToRgb = (hex) => {
       const r = parseInt(hex.slice(1, 3), 16);
@@ -286,7 +306,6 @@ function App() {
     return `linear-gradient(135deg, ${color1}, ${color2}, ${color3})`;
   };
 
-  // RENDERIZAÇÃO CONDICIONAL
   if (currentView === 'welcome') {
     return <WelcomePage onStart={handleStartJourney} />;
   }
@@ -304,7 +323,6 @@ function App() {
     );
   }
 
-  // TELA PRINCIPAL (curiosidades)
   return (
     <div className="h-screen w-screen relative overflow-hidden">
       <div 
@@ -396,13 +414,13 @@ function App() {
                       animate={{ y: [0, -5, 0] }}
                       transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                     >
-                      <p className="font-semibold text-green-400 text-xl sm:text-2xl md:text-3xl" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}>
+                      <p className="font-semibold text-green-400" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}>
                         "Educação é prevenção."
                       </p>
-                      <p className="font-semibold text-blue-400 text-xl sm:text-2xl md:text-3xl" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}>
+                      <p className="font-semibold text-blue-400" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}>
                         "Respeito é proteção."
                       </p>
-                      <p className="font-semibold text-purple-400 text-xl sm:text-2xl md:text-3xl" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}>
+                      <p className="font-semibold text-purple-400" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}>
                         "Informação é poder."
                       </p>
                     </motion.div>
@@ -410,19 +428,28 @@ function App() {
                   
                   <Button
                     onClick={handleReset}
-                    className="mt-4 sm:mt-6 bg-white/20 text-white hover:bg-white/30 transition-all duration-300"
+                    className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-semibold px-4 py-2 sm:px-6 sm:py-2 rounded-full animate-pulse-glow text-sm sm:text-base"
                   >
-                    Recomeçar
+                    {curiosities.length === 0 ? "Adicionar Curiosidades" : "Recomeçar Jornada"}
                   </Button>
                 </motion.div>
               </motion.div>
             ) : (
-              <CuriosityCard 
-                key={curiosities[currentIndex]?.id} 
-                curiosity={curiosities[currentIndex]} 
-                onNext={handleNext} 
-                isLast={currentIndex === curiosities.length - 1}
-              />
+              <motion.div
+                key={currentIndex}
+                custom={direction}
+                variants={cardVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                className="w-full"
+              >
+                <CuriosityCard
+                  curiosity={curiosities[currentIndex]}
+                  onNext={handleNext}
+                  isLast={currentIndex === curiosities.length - 1}
+                />
+              </motion.div>
             )}
           </AnimatePresence>
         </main>
@@ -431,15 +458,14 @@ function App() {
           Desenvolvido com ❤️ por Jociel
         </footer>
       </div>
-
-      {/* AdminPanel renderizado condicionalmente */}
+      
       {currentView === 'admin' && (
-        <AdminPanel 
-          isOpen={true} 
-          onClose={handleCloseAdmin} 
-          curiosities={curiosities} 
-          addCuriosity={addCuriosity} 
-          editCuriosity={editCuriosity} 
+        <AdminPanel
+          isOpen={true}
+          onClose={handleCloseAdmin}
+          curiosities={curiosities}
+          addCuriosity={addCuriosity}
+          editCuriosity={editCuriosity}
           deleteCuriosity={deleteCuriosity}
         />
       )}
@@ -449,4 +475,5 @@ function App() {
 }
 
 export default App;
+
 
