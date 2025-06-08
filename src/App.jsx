@@ -105,6 +105,8 @@ function App() {
   const [showWelcome, setShowWelcome] = useState(true);
   const [curiosities, setCuriosities] = useState(initialCuriosities);
   const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
+  const [passwordAction, setPasswordAction] = useState(null); // 'add' ou 'delete'
+  const [pendingAction, setPendingAction] = useState(null); // dados da ação pendente
   
   const [currentIndex, setCurrentIndex] = useState(0);
   const [viewedCount, setViewedCount] = useState(1);
@@ -137,16 +139,33 @@ function App() {
     fetchCuriosities();
   }, []);
 
+  // Função para ir diretamente às curiosidades
   const handleStart = () => {
     setShowWelcome(false);
   };
 
-  const handlePasswordCancel = () => {
-    setShowPasswordPrompt(false);
+  // Função para abrir o painel de administração diretamente (sem senha)
+  const handleShowAdmin = () => {
+    setShowAdmin(true);
   };
 
-  const handlePasswordSuccess = () => {
+  const handlePasswordCancel = () => {
     setShowPasswordPrompt(false);
+    setPasswordAction(null);
+    setPendingAction(null);
+  };
+
+  const handlePasswordSuccess = async () => {
+    setShowPasswordPrompt(false);
+    
+    if (passwordAction === 'add' && pendingAction) {
+      await executeAddCuriosity(pendingAction);
+    } else if (passwordAction === 'delete' && pendingAction) {
+      await executeDeleteCuriosity(pendingAction);
+    }
+    
+    setPasswordAction(null);
+    setPendingAction(null);
   };
 
   const handleNext = () => {
@@ -193,7 +212,15 @@ function App() {
     }
   };
 
-  const addCuriosity = async (newCuriosity) => {
+  // Função que solicita senha antes de adicionar
+  const addCuriosity = (newCuriosity) => {
+    setPendingAction(newCuriosity);
+    setPasswordAction('add');
+    setShowPasswordPrompt(true);
+  };
+
+  // Função que executa a adição após a senha ser confirmada
+  const executeAddCuriosity = async (newCuriosity) => {
     try {
       const response = await fetch(`${API_BASE_URL}/curiosities`, {
         method: 'POST',
@@ -218,6 +245,7 @@ function App() {
     }
   };
 
+  // Função para editar (sem senha)
   const editCuriosity = async (id, updatedCuriosity) => {
     try {
       const response = await fetch(`${API_BASE_URL}/curiosities?id=${id}`, {
@@ -241,7 +269,15 @@ function App() {
     }
   };
 
-  const deleteCuriosity = async (id) => {
+  // Função que solicita senha antes de deletar
+  const deleteCuriosity = (id) => {
+    setPendingAction(id);
+    setPasswordAction('delete');
+    setShowPasswordPrompt(true);
+  };
+
+  // Função que executa a deleção após a senha ser confirmada
+  const executeDeleteCuriosity = async (id) => {
     try {
       const response = await fetch(`${API_BASE_URL}/curiosities?id=${id}&password=6453`, {
         method: 'DELETE',
@@ -339,8 +375,13 @@ function App() {
           >
             <div className="text-center mb-6">
               <div className="text-4xl mb-4">🔒</div>
-              <h2 className="text-xl font-bold text-white mb-2">Área Restrita</h2>
-              <p className="text-white/70 text-sm">Digite a senha para acessar o painel de administração</p>
+              <h2 className="text-xl font-bold text-white mb-2">Confirmação Necessária</h2>
+              <p className="text-white/70 text-sm">
+                {passwordAction === 'add' 
+                  ? 'Digite a senha para adicionar a curiosidade' 
+                  : 'Digite a senha para deletar a curiosidade'
+                }
+              </p>
             </div>
             
             <div className="space-y-4">
@@ -350,7 +391,6 @@ function App() {
                 className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 onKeyPress={(e) => {
                   if (e.key === 'Enter' && e.target.value === '6453') {
-                    setShowAdmin(true);
                     handlePasswordSuccess();
                   }
                 }}
@@ -361,13 +401,12 @@ function App() {
                   onClick={(e) => {
                     const input = e.target.closest('.space-y-4').querySelector('input');
                     if (input.value === '6453') {
-                      setShowAdmin(true);
                       handlePasswordSuccess();
                     }
                   }}
                   className="flex-1 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white"
                 >
-                  Entrar
+                  Confirmar
                 </Button>
                 <Button
                   onClick={handlePasswordCancel}
@@ -418,7 +457,7 @@ function App() {
             </motion.div>
             
             <Button
-              onClick={() => setShowPasswordPrompt(true)}
+              onClick={handleShowAdmin}
               variant="outline"
               size="icon"
               className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 w-8 h-8"
