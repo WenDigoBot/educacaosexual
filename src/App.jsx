@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Settings, Heart, Shield, Brain } from 'lucide-react';
 import CuriosityCard from '@/components/CuriosityCard';
@@ -8,7 +8,7 @@ import WelcomePage from '@/components/WelcomePage';
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/toaster';
 
-const API_BASE_URL = '/.netlify/functions'; // URL das Netlify Functions
+const API_BASE_URL = '/.netlify/functions';
 
 const initialCuriosities = [
   {
@@ -70,52 +70,23 @@ const backgroundGradients = [
   ['#0f766e', '#064e3b', '#059669']  
 ];
 
-// Variantes de animação para o cartão
-const cardVariants = {
-  enter: (direction) => {
-    return {
-      x: direction > 0 ? 300 : -300,
-      opacity: 0,
-      scale: 0.8
-    };
-  },
-  center: {
-    x: 0,
-    opacity: 1,
-    scale: 1,
-    transition: {
-      duration: 0.5,
-      ease: "easeOut"
-    }
-  },
-  exit: (direction) => {
-    return {
-      x: direction < 0 ? 300 : -300,
-      opacity: 0,
-      scale: 0.8,
-      transition: {
-        duration: 0.5,
-        ease: "easeIn"
-      }
-    };
-  }
-};
-
 function App() {
-  const [showWelcome, setShowWelcome] = useState(true);
+  // Estados principais
+  const [currentView, setCurrentView] = useState('welcome'); // 'welcome', 'curiosities', 'admin', 'password'
   const [curiosities, setCuriosities] = useState(initialCuriosities);
-  const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
-  const [passwordAction, setPasswordAction] = useState(null); // 'add' ou 'delete'
-  const [pendingAction, setPendingAction] = useState(null); // dados da ação pendente
   
+  // Estados para curiosidades
   const [currentIndex, setCurrentIndex] = useState(0);
   const [viewedCount, setViewedCount] = useState(1);
-  const [showAdmin, setShowAdmin] = useState(false);
   const [backgroundIndex, setBackgroundIndex] = useState(0);
   const [showFinalMessage, setShowFinalMessage] = useState(false);
-  const [direction, setDirection] = useState(1); 
-  const [isCardTransitioning, setIsCardTransitioning] = useState(false);
+  const [direction, setDirection] = useState(1);
   
+  // Estados para senha
+  const [passwordAction, setPasswordAction] = useState(null);
+  const [pendingAction, setPendingAction] = useState(null);
+  
+  // Estados para transições
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [prevBackgroundIndex, setPrevBackgroundIndex] = useState(0);
   const [nextBackgroundIndex, setNextBackgroundIndex] = useState(0);
@@ -139,24 +110,32 @@ function App() {
     fetchCuriosities();
   }, []);
 
-  // Função para ir diretamente às curiosidades
-  const handleStart = () => {
-    setShowWelcome(false);
+  // NAVEGAÇÃO PRINCIPAL
+  const handleStartJourney = () => {
+    console.log('Iniciando jornada - indo direto para curiosidades');
+    setCurrentView('curiosities');
   };
 
-  // Função para abrir o painel de administração diretamente (sem senha)
-  const handleShowAdmin = () => {
-    setShowAdmin(true);
+  const handleOpenAdmin = () => {
+    console.log('Abrindo painel de administração');
+    setCurrentView('admin');
   };
 
-  const handlePasswordCancel = () => {
-    setShowPasswordPrompt(false);
-    setPasswordAction(null);
-    setPendingAction(null);
+  const handleCloseAdmin = () => {
+    console.log('Fechando painel de administração');
+    setCurrentView('curiosities');
+  };
+
+  // FUNÇÕES DE SENHA
+  const requestPassword = (action, data) => {
+    console.log('Solicitando senha para:', action);
+    setPasswordAction(action);
+    setPendingAction(data);
+    setCurrentView('password');
   };
 
   const handlePasswordSuccess = async () => {
-    setShowPasswordPrompt(false);
+    console.log('Senha confirmada, executando ação:', passwordAction);
     
     if (passwordAction === 'add' && pendingAction) {
       await executeAddCuriosity(pendingAction);
@@ -166,12 +145,20 @@ function App() {
     
     setPasswordAction(null);
     setPendingAction(null);
+    setCurrentView('admin');
   };
 
+  const handlePasswordCancel = () => {
+    console.log('Senha cancelada');
+    setPasswordAction(null);
+    setPendingAction(null);
+    setCurrentView('admin');
+  };
+
+  // FUNÇÕES DE CURIOSIDADES
   const handleNext = () => {
     if (currentIndex < curiosities.length - 1) {
       setDirection(1);
-      setIsCardTransitioning(true);
       setIsTransitioning(true);
       
       setPrevBackgroundIndex(backgroundIndex);
@@ -193,7 +180,6 @@ function App() {
           setTimeout(() => {
             setIsTransitioning(false);
             setTransitionProgress(0);
-            setIsCardTransitioning(false);
           }, 100);
         }
       }, 20);
@@ -208,18 +194,15 @@ function App() {
     setBackgroundIndex(0);
     setShowFinalMessage(false);
     if (curiosities.length === 0) {
-      setShowAdmin(true);
+      setCurrentView('admin');
     }
   };
 
-  // Função que solicita senha antes de adicionar
+  // FUNÇÕES CRUD
   const addCuriosity = (newCuriosity) => {
-    setPendingAction(newCuriosity);
-    setPasswordAction('add');
-    setShowPasswordPrompt(true);
+    requestPassword('add', newCuriosity);
   };
 
-  // Função que executa a adição após a senha ser confirmada
   const executeAddCuriosity = async (newCuriosity) => {
     try {
       const response = await fetch(`${API_BASE_URL}/curiosities`, {
@@ -245,7 +228,6 @@ function App() {
     }
   };
 
-  // Função para editar (sem senha)
   const editCuriosity = async (id, updatedCuriosity) => {
     try {
       const response = await fetch(`${API_BASE_URL}/curiosities?id=${id}`, {
@@ -269,14 +251,10 @@ function App() {
     }
   };
 
-  // Função que solicita senha antes de deletar
   const deleteCuriosity = (id) => {
-    setPendingAction(id);
-    setPasswordAction('delete');
-    setShowPasswordPrompt(true);
+    requestPassword('delete', id);
   };
 
-  // Função que executa a deleção após a senha ser confirmada
   const executeDeleteCuriosity = async (id) => {
     try {
       const response = await fetch(`${API_BASE_URL}/curiosities?id=${id}&password=6453`, {
@@ -302,6 +280,7 @@ function App() {
     }
   };
 
+  // FUNÇÕES DE ESTILO
   const interpolateColors = (colorA, colorB, factor) => {
     const hexToRgb = (hex) => {
       const r = parseInt(hex.slice(1, 3), 16);
@@ -350,11 +329,12 @@ function App() {
     return `linear-gradient(135deg, ${color1}, ${color2}, ${color3})`;
   };
 
-  if (showWelcome) {
-    return <WelcomePage onStart={handleStart} />;
+  // RENDERIZAÇÃO CONDICIONAL
+  if (currentView === 'welcome') {
+    return <WelcomePage onStart={handleStartJourney} />;
   }
 
-  if (showPasswordPrompt) {
+  if (currentView === 'password') {
     return (
       <div className="h-screen w-screen relative overflow-hidden">
         <div 
@@ -423,6 +403,7 @@ function App() {
     );
   }
 
+  // TELA PRINCIPAL (curiosidades ou admin)
   return (
     <div className="h-screen w-screen relative overflow-hidden">
       <div 
@@ -457,7 +438,7 @@ function App() {
             </motion.div>
             
             <Button
-              onClick={handleShowAdmin}
+              onClick={handleOpenAdmin}
               variant="outline"
               size="icon"
               className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 w-8 h-8"
@@ -551,8 +532,8 @@ function App() {
       </div>
 
       <AdminPanel 
-        isOpen={showAdmin} 
-        onClose={() => setShowAdmin(false)} 
+        isOpen={currentView === 'admin'} 
+        onClose={handleCloseAdmin} 
         curiosities={curiosities} 
         addCuriosity={addCuriosity} 
         editCuriosity={editCuriosity} 
