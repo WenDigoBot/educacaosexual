@@ -108,17 +108,14 @@ function App() {
 
   // NAVEGAÇÃO PRINCIPAL
   const handleStartJourney = () => {
-    console.log('Iniciando jornada - indo direto para curiosidades');
     setCurrentView('curiosities');
   };
 
   const handleOpenAdmin = () => {
-    console.log('Abrindo painel de administração');
     setCurrentView('admin');
   };
 
   const handleCloseAdmin = () => {
-    console.log('Fechando painel de administração');
     setCurrentView('curiosities');
   };
 
