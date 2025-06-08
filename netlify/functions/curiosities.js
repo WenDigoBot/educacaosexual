@@ -23,7 +23,7 @@ if (!admin.apps.length) {
 
 const db = admin.firestore();
 const COLLECTION_NAME = "curiosities";
-const ADMIN_PASSWORD = "6453";
+// const ADMIN_PASSWORD = "6453"; // Removido
 
 exports.handler = async (event, context) => {
   // Configurar CORS
@@ -68,17 +68,18 @@ exports.handler = async (event, context) => {
         // Adicionar nova curiosidade
         const newData = JSON.parse(event.body);
         
-        // Verificar senha
-        if (newData.password !== ADMIN_PASSWORD) {
-          return {
-            statusCode: 401,
-            headers,
-            body: JSON.stringify({ error: "Senha incorreta" })
-          };
-        }
+        // // Verificar senha - REMOVIDO
+        // if (newData.password !== ADMIN_PASSWORD) {
+        //   return {
+        //     statusCode: 401,
+        //     headers,
+        //     body: JSON.stringify({ error: "Senha incorreta" })
+        //   };
+        // }
 
-        // Remover a senha dos dados antes de salvar
-        const { password, ...curiosityData } = newData;
+        // // Remover a senha dos dados antes de salvar - REMOVIDO
+        // const { password, ...curiosityData } = newData;
+        const curiosityData = newData; // Usar todos os dados recebidos
         
         // Adicionar timestamp
         curiosityData.createdAt = admin.firestore.FieldValue.serverTimestamp();
@@ -109,17 +110,18 @@ exports.handler = async (event, context) => {
           };
         }
 
-        // Verificar senha
-        if (updateData.password !== ADMIN_PASSWORD) {
-          return {
-            statusCode: 401,
-            headers,
-            body: JSON.stringify({ error: "Senha incorreta" })
-          };
-        }
+        // // Verificar senha - REMOVIDO
+        // if (updateData.password !== ADMIN_PASSWORD) {
+        //   return {
+        //     statusCode: 401,
+        //     headers,
+        //     body: JSON.stringify({ error: "Senha incorreta" })
+        //   };
+        // }
 
-        // Remover a senha dos dados antes de salvar
-        const { password: updatePassword, ...updateCuriosityData } = updateData;
+        // // Remover a senha dos dados antes de salvar - REMOVIDO
+        // const { password: updatePassword, ...updateCuriosityData } = updateData;
+        const updateCuriosityData = updateData; // Usar todos os dados recebidos
         
         // Adicionar timestamp de atualização
         updateCuriosityData.updatedAt = admin.firestore.FieldValue.serverTimestamp();
@@ -139,7 +141,7 @@ exports.handler = async (event, context) => {
       case "DELETE":
         // Deletar curiosidade
         const deleteId = event.queryStringParameters?.id;
-        const deletePassword = event.queryStringParameters?.password;
+        // const deletePassword = event.queryStringParameters?.password; // REMOVIDO
 
         if (!deleteId) {
           return {
@@ -149,14 +151,14 @@ exports.handler = async (event, context) => {
           };
         }
 
-        // Verificar senha
-        if (deletePassword !== ADMIN_PASSWORD) {
-          return {
-            statusCode: 401,
-            headers,
-            body: JSON.stringify({ error: "Senha incorreta" })
-          };
-        }
+        // // Verificar senha - REMOVIDO
+        // if (deletePassword !== ADMIN_PASSWORD) {
+        //   return {
+        //     statusCode: 401,
+        //     headers,
+        //     body: JSON.stringify({ error: "Senha incorreta" })
+        //   };
+        // }
 
         await db.collection(COLLECTION_NAME).doc(deleteId).delete();
         
@@ -186,4 +188,5 @@ exports.handler = async (event, context) => {
     };
   }
 };
+
 
