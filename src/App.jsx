@@ -129,10 +129,6 @@ function App() {
       const nextIndex = (backgroundIndex + 1) % backgroundGradients.length;
       setNextBackgroundIndex(nextIndex);
       
-      const newIndex = currentIndex + 1;
-      setCurrentIndex(newIndex);
-      setViewedCount(newIndex + 1);
-      
       let progress = 0;
       const animationInterval = setInterval(() => {
         progress += 0.05;
@@ -147,6 +143,11 @@ function App() {
           }, 100);
         }
       }, 20);
+      
+      const newIndex = currentIndex + 1;
+      setCurrentIndex(newIndex);
+      setViewedCount(newIndex + 1);
+
     } else {
       setShowFinalMessage(true);
     }
@@ -431,14 +432,17 @@ function App() {
         </footer>
       </div>
 
-      <AdminPanel 
-        isOpen={currentView === 'admin'} 
-        onClose={handleCloseAdmin} 
-        curiosities={curiosities} 
-        addCuriosity={addCuriosity} 
-        editCuriosity={editCuriosity} 
-        deleteCuriosity={deleteCuriosity}
-      />
+      {/* AdminPanel renderizado condicionalmente */}
+      {currentView === 'admin' && (
+        <AdminPanel 
+          isOpen={true} 
+          onClose={handleCloseAdmin} 
+          curiosities={curiosities} 
+          addCuriosity={addCuriosity} 
+          editCuriosity={editCuriosity} 
+          deleteCuriosity={deleteCuriosity}
+        />
+      )}
       <Toaster />
     </div>
   );
