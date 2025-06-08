@@ -72,7 +72,7 @@ const backgroundGradients = [
 
 function App() {
   // Estados principais
-  const [currentView, setCurrentView] = useState('welcome'); // 'welcome', 'curiosities', 'admin', 'password'
+  const [currentView, setCurrentView] = useState('welcome'); // 'welcome', 'curiosities', 'admin'
   const [curiosities, setCuriosities] = useState(initialCuriosities);
   
   // Estados para curiosidades
@@ -81,10 +81,6 @@ function App() {
   const [backgroundIndex, setBackgroundIndex] = useState(0);
   const [showFinalMessage, setShowFinalMessage] = useState(false);
   const [direction, setDirection] = useState(1);
-  
-  // Estados para senha
-  const [passwordAction, setPasswordAction] = useState(null);
-  const [pendingAction, setPendingAction] = useState(null);
   
   // Estados para transições
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -124,35 +120,6 @@ function App() {
   const handleCloseAdmin = () => {
     console.log('Fechando painel de administração');
     setCurrentView('curiosities');
-  };
-
-  // FUNÇÕES DE SENHA
-  const requestPassword = (action, data) => {
-    console.log('Solicitando senha para:', action);
-    setPasswordAction(action);
-    setPendingAction(data);
-    setCurrentView('password');
-  };
-
-  const handlePasswordSuccess = async () => {
-    console.log('Senha confirmada, executando ação:', passwordAction);
-    
-    if (passwordAction === 'add' && pendingAction) {
-      await executeAddCuriosity(pendingAction);
-    } else if (passwordAction === 'delete' && pendingAction) {
-      await executeDeleteCuriosity(pendingAction);
-    }
-    
-    setPasswordAction(null);
-    setPendingAction(null);
-    setCurrentView('admin');
-  };
-
-  const handlePasswordCancel = () => {
-    console.log('Senha cancelada');
-    setPasswordAction(null);
-    setPendingAction(null);
-    setCurrentView('admin');
   };
 
   // FUNÇÕES DE CURIOSIDADES
@@ -198,12 +165,8 @@ function App() {
     }
   };
 
-  // FUNÇÕES CRUD
-  const addCuriosity = (newCuriosity) => {
-    requestPassword('add', newCuriosity);
-  };
-
-  const executeAddCuriosity = async (newCuriosity) => {
+  // FUNÇÕES CRUD (SEM SENHA NO FRONTEND)
+  const addCuriosity = async (newCuriosity) => {
     try {
       const response = await fetch(`${API_BASE_URL}/curiosities`, {
         method: 'POST',
@@ -251,13 +214,9 @@ function App() {
     }
   };
 
-  const deleteCuriosity = (id) => {
-    requestPassword('delete', id);
-  };
-
-  const executeDeleteCuriosity = async (id) => {
+  const deleteCuriosity = async (id) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/curiosities?id=${id}&password=6453`, {
+      const response = await fetch(`${API_BASE_URL}/curiosities?id=${id}`, {
         method: 'DELETE',
       });
 
@@ -334,76 +293,20 @@ function App() {
     return <WelcomePage onStart={handleStartJourney} />;
   }
 
-  if (currentView === 'password') {
+  if (currentView === 'admin') {
     return (
-      <div className="h-screen w-screen relative overflow-hidden">
-        <div 
-          className="absolute inset-0 transition-all duration-500"
-          style={{
-            background: getCurrentGradient(),
-            transition: "background 0.5s ease-in-out"
-          }}
-        />
-        
-        <ParticleSystem />
-        
-        <div className="relative z-10 h-full w-full flex items-center justify-center">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-white/10 backdrop-blur-lg rounded-3xl p-6 border border-white/20 max-w-md w-full mx-4"
-          >
-            <div className="text-center mb-6">
-              <div className="text-4xl mb-4">🔒</div>
-              <h2 className="text-xl font-bold text-white mb-2">Confirmação Necessária</h2>
-              <p className="text-white/70 text-sm">
-                {passwordAction === 'add' 
-                  ? 'Digite a senha para adicionar a curiosidade' 
-                  : 'Digite a senha para deletar a curiosidade'
-                }
-              </p>
-            </div>
-            
-            <div className="space-y-4">
-              <input
-                type="password"
-                placeholder="Digite a senha"
-                className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter' && e.target.value === '6453') {
-                    handlePasswordSuccess();
-                  }
-                }}
-              />
-              
-              <div className="flex gap-3">
-                <Button
-                  onClick={(e) => {
-                    const input = e.target.closest('.space-y-4').querySelector('input');
-                    if (input.value === '6453') {
-                      handlePasswordSuccess();
-                    }
-                  }}
-                  className="flex-1 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white"
-                >
-                  Confirmar
-                </Button>
-                <Button
-                  onClick={handlePasswordCancel}
-                  variant="outline"
-                  className="flex-1 border-white/20 text-white hover:bg-white/10"
-                >
-                  Cancelar
-                </Button>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </div>
+      <AdminPanel 
+        isOpen={true} 
+        onClose={handleCloseAdmin} 
+        curiosities={curiosities} 
+        addCuriosity={addCuriosity} 
+        editCuriosity={editCuriosity} 
+        deleteCuriosity={deleteCuriosity}
+      />
     );
   }
 
-  // TELA PRINCIPAL (curiosidades ou admin)
+  // TELA PRINCIPAL (curiosidades)
   return (
     <div className="h-screen w-screen relative overflow-hidden">
       <div 
