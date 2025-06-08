@@ -8,42 +8,56 @@ import WelcomePage from '@/components/WelcomePage';
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/toaster';
 
+const API_BASE_URL = '/.netlify/functions'; // URL das Netlify Functions
+
 const initialCuriosities = [
   {
     id: 1,
-    text: "O preservativo masculino tem 98% de eficácia quando usado corretamente.",
-    isTrue: true,
-    revelation: "Isso mesmo! Quando usado de forma consistente e correta, o preservativo é altamente eficaz na prevenção da gravidez e ISTs."
+    text: "Usar duas camisinhas ao mesmo tempo protege mais.",
+    isTrue: false,
+    revelation: "Cuidado com essa ideia! Usar duas camisinhas ao mesmo tempo aumenta o atrito entre elas e pode causar rompimentos, diminuindo a proteção."
   },
   {
     id: 2,
-    text: "A pílula anticoncepcional protege contra todas as ISTs.",
+    text: "Só se pega ISTs se tiver relação sexual com penetração.",
     isTrue: false,
-    revelation: "Na verdade, a pílula anticoncepcional é um método hormonal que previne a gravidez, mas não oferece proteção contra Infecções Sexualmente Transmissíveis (ISTs). Para proteção contra ISTs, o uso de preservativos é essencial."
+    revelation: "Nem sempre é assim! Algumas ISTs podem ser transmitidas apenas com o contato de mucosas ou fluidos corporais — penetração não é obrigatória para o risco existir."
   },
   {
     id: 3,
-    text: "É possível engravidar durante a menstruação.",
+    text: "A camisinha previne contra gravidez e ISTs.",
     isTrue: true,
-    revelation: "Isso mesmo! Embora menos provável, a ovulação pode ocorrer perto do período menstrual ou o espermatozoide pode sobreviver no corpo por alguns dias, tornando a gravidez possível."
+    revelation: "Correto! A camisinha, quando usada da forma certa, é extremamente eficaz na prevenção da gravidez e na proteção contra ISTs."
   },
   {
     id: 4,
-    text: "O HPV pode causar câncer de colo do útero.",
-    isTrue: true,
-    revelation: "Isso mesmo! Certos tipos de HPV são a principal causa de câncer de colo do útero. A vacinação e exames preventivos são importantes."
+    text: "Pessoas que têm ISTs sempre apresentam sintomas.",
+    isTrue: false,
+    revelation: "Engano comum! Muitas ISTs não apresentam sinais visíveis e só são detectadas com exames. Por isso, é importante se testar regularmente."
   },
   {
     id: 5,
-    text: "Fazer xixi após a relação sexual previne 100% das infecções urinárias.",
+    text: "A primeira vez não engravida.",
     isTrue: false,
-    revelation: "Na verdade, urinar após a relação sexual pode ajudar a eliminar bactérias da uretra, reduzindo o risco de infecção urinária, mas não garante 100% de prevenção. Outras medidas de higiene também são importantes."
+    revelation: "Fique atento! A gravidez pode acontecer em qualquer relação sexual desprotegida — inclusive na primeira vez."
   },
   {
     id: 6,
-    text: "A camisinha feminina é tão eficaz quanto a masculina.",
+    text: "Tomar banho após o sexo evita gravidez.",
+    isTrue: false,
+    revelation: "Esse é um mito perigoso! Tomar banho não impede uma possível gravidez. Apenas métodos contraceptivos seguros oferecem proteção real."
+  },
+  {
+    id: 7,
+    text: "Sexo oral pode transmitir ISTs.",
     isTrue: true,
-    revelation: "Isso mesmo! Quando usada corretamente, a camisinha feminina oferece um nível de proteção similar à masculina contra gravidez e ISTs."
+    revelation: "Sim, pode sim! ISTs como sífilis, herpes e HPV podem ser transmitidas pelo sexo oral sem proteção. Usar preservativo também é necessário aqui."
+  },
+  {
+    id: 8,
+    text: "Consentimento é essencial em qualquer relação.",
+    isTrue: true,
+    revelation: "Isso é fundamental! Toda relação deve ser baseada no respeito mútuo e no consentimento claro de todas as pessoas envolvidas."
   }
 ];
 
@@ -89,17 +103,7 @@ const cardVariants = {
 
 function App() {
   const [showWelcome, setShowWelcome] = useState(true);
-  const [curiosities, setCuriosities] = useState(() => {
-    const saved = localStorage.getItem('healthCuriosities');
-    if (saved) {
-      const parsedCuriosities = JSON.parse(saved);
-      return parsedCuriosities.map(c => ({
-        ...initialCuriosities.find(ic => ic.id === c.id) || { revelation: c.isTrue ? "Isso mesmo!" : "Na verdade..." }, 
-        ...c 
-      }));
-    }
-    return initialCuriosities;
-  });
+  const [curiosities, setCuriosities] = useState(initialCuriosities);
   
   const [currentIndex, setCurrentIndex] = useState(0);
   // Iniciar a contagem em 1 em vez de 0
@@ -116,9 +120,25 @@ function App() {
   const [nextBackgroundIndex, setNextBackgroundIndex] = useState(0);
   const [transitionProgress, setTransitionProgress] = useState(0);
 
+  // Função para buscar curiosidades do backend
+  const fetchCuriosities = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/curiosities`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.length > 0) {
+          setCuriosities(data);
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao buscar curiosidades:', error);
+      // Manter as curiosidades iniciais em caso de erro
+    }
+  };
+
   useEffect(() => {
-    localStorage.setItem('healthCuriosities', JSON.stringify(curiosities));
-  }, [curiosities]);
+    fetchCuriosities();
+  }, []);
 
   const handleStart = () => {
     setShowWelcome(false);
@@ -177,32 +197,96 @@ function App() {
     }
   };
 
-  const addCuriosity = (newCuriosity) => {
-    const curiosity = {
-      id: Date.now(),
-      ...newCuriosity
-    };
-    setCuriosities(prev => [...prev, curiosity]);
-    if (showFinalMessage && curiosities.length === 0) {
-      setShowFinalMessage(false);
+  const addCuriosity = async (newCuriosity) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/curiosities`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newCuriosity),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setCuriosities(prev => [...prev, { id: data.id, ...newCuriosity }]);
+        if (showFinalMessage && curiosities.length === 0) {
+          setShowFinalMessage(false);
+        }
+      } else {
+        const error = await response.json();
+        throw new Error(error.error || 'Erro ao adicionar curiosidade');
+      }
+    } catch (error) {
+      console.error('Erro ao adicionar curiosidade:', error);
+      // Fallback para localStorage em caso de erro
+      const curiosity = {
+        id: Date.now(),
+        ...newCuriosity
+      };
+      setCuriosities(prev => [...prev, curiosity]);
     }
   };
 
-  const editCuriosity = (id, updatedCuriosity) => {
-    setCuriosities(prev => 
-      prev.map(c => c.id === id ? { ...c, ...updatedCuriosity } : c)
-    );
+  const editCuriosity = async (id, updatedCuriosity) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/curiosities?id=${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedCuriosity),
+      });
+
+      if (response.ok) {
+        setCuriosities(prev => 
+          prev.map(c => c.id === id ? { ...c, ...updatedCuriosity } : c)
+        );
+      } else {
+        const error = await response.json();
+        throw new Error(error.error || 'Erro ao editar curiosidade');
+      }
+    } catch (error) {
+      console.error('Erro ao editar curiosidade:', error);
+      // Fallback para localStorage em caso de erro
+      setCuriosities(prev => 
+        prev.map(c => c.id === id ? { ...c, ...updatedCuriosity } : c)
+      );
+    }
   };
 
-  const deleteCuriosity = (id) => {
-    const newCuriosities = curiosities.filter(c => c.id !== id);
-    setCuriosities(newCuriosities);
-    
-    if (newCuriosities.length === 0) {
-      setCurrentIndex(0);
-      setShowFinalMessage(true); 
-    } else if (currentIndex >= newCuriosities.length) {
-      setCurrentIndex(Math.max(0, newCuriosities.length - 1));
+  const deleteCuriosity = async (id) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/curiosities?id=${id}&password=6453`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        const newCuriosities = curiosities.filter(c => c.id !== id);
+        setCuriosities(newCuriosities);
+        
+        if (newCuriosities.length === 0) {
+          setCurrentIndex(0);
+          setShowFinalMessage(true); 
+        } else if (currentIndex >= newCuriosities.length) {
+          setCurrentIndex(Math.max(0, newCuriosities.length - 1));
+        }
+      } else {
+        const error = await response.json();
+        throw new Error(error.error || 'Erro ao deletar curiosidade');
+      }
+    } catch (error) {
+      console.error('Erro ao deletar curiosidade:', error);
+      // Fallback para localStorage em caso de erro
+      const newCuriosities = curiosities.filter(c => c.id !== id);
+      setCuriosities(newCuriosities);
+      
+      if (newCuriosities.length === 0) {
+        setCurrentIndex(0);
+        setShowFinalMessage(true); 
+      } else if (currentIndex >= newCuriosities.length) {
+        setCurrentIndex(Math.max(0, newCuriosities.length - 1));
+      }
     }
   };
 
@@ -356,13 +440,13 @@ function App() {
                       animate={{ y: [0, -5, 0] }}
                       transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                     >
-                      <p className="font-semibold text-green-400" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}>
+                      <p className="font-semibold text-green-400 text-xl sm:text-2xl md:text-3xl" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}>
                         "Educação é prevenção."
                       </p>
-                      <p className="font-semibold text-blue-400" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}>
+                      <p className="font-semibold text-blue-400 text-xl sm:text-2xl md:text-3xl" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}>
                         "Respeito é proteção."
                       </p>
-                      <p className="font-semibold text-purple-400" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}>
+                      <p className="font-semibold text-purple-400 text-xl sm:text-2xl md:text-3xl" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}>
                         "Informação é poder."
                       </p>
                     </motion.div>

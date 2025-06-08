@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { X, Plus, Edit, Trash2, Save, Undo as Cancel } from 'lucide-react';
+import { X, Plus, Edit, Trash2, Save, Undo as Cancel, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
 
 const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const [formData, setFormData] = useState({ text: '', isTrue: true, revelation: '' });
+  const [formData, setFormData] = useState({ text: '', isTrue: true, revelation: '', password: '' });
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [passwordInput, setPasswordInput] = useState('');
+
+  const ADMIN_PASSWORD = '6453';
 
   useEffect(() => {
     if (editingId) {
@@ -16,7 +20,8 @@ const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
         setFormData({ 
           text: currentCuriosity.text, 
           isTrue: currentCuriosity.isTrue,
-          revelation: currentCuriosity.revelation || (currentCuriosity.isTrue ? "Isso mesmo! " : "Na verdade... ")
+          revelation: currentCuriosity.revelation || (currentCuriosity.isTrue ? "Isso mesmo! " : "Na verdade... "),
+          password: ''
         });
       }
     } else {
@@ -25,7 +30,7 @@ const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
   }, [editingId, curiosities]);
 
   useEffect(() => {
-    if (!editingId) { // Only update default revelation for new entries or when isTrue changes
+    if (!editingId) {
         setFormData(prev => ({
             ...prev,
             revelation: prev.isTrue ? "Isso mesmo! " : "Na verdade... "
@@ -33,6 +38,22 @@ const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
     }
   }, [formData.isTrue, editingId]);
 
+  const handlePasswordSubmit = (e) => {
+    e.preventDefault();
+    if (passwordInput === ADMIN_PASSWORD) {
+      setIsAuthenticated(true);
+      toast({
+        title: "Acesso liberado!",
+        description: "Você pode agora gerenciar as curiosidades."
+      });
+    } else {
+      toast({
+        title: "Senha incorreta",
+        description: "Tente novamente.",
+        variant: "destructive"
+      });
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -40,6 +61,15 @@ const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
       toast({
         title: "Erro",
         description: "Por favor, preencha todos os campos: texto da curiosidade e revelação.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!formData.password || formData.password !== ADMIN_PASSWORD) {
+      toast({
+        title: "Erro",
+        description: "Senha obrigatória para salvar alterações.",
         variant: "destructive"
       });
       return;
@@ -61,27 +91,91 @@ const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
       setShowAddForm(false);
     }
     
-    setFormData({ text: '', isTrue: true, revelation: 'Isso mesmo! ' });
+    setFormData({ text: '', isTrue: true, revelation: 'Isso mesmo! ', password: '' });
   };
 
   const handleEdit = (curiosity) => {
     setEditingId(curiosity.id);
-    setShowAddForm(false); // Close add form if open
+    setShowAddForm(false);
   };
 
   const handleDelete = (id) => {
-    onDelete(id);
-    toast({
-      title: "Removido",
-      description: "Curiosidade removida com sucesso!"
-    });
+    const password = prompt("Digite a senha para confirmar a exclusão:");
+    if (password === ADMIN_PASSWORD) {
+      onDelete(id);
+      toast({
+        title: "Removido",
+        description: "Curiosidade removida com sucesso!"
+      });
+    } else {
+      toast({
+        title: "Senha incorreta",
+        description: "Exclusão cancelada.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleCancel = () => {
-    setFormData({ text: '', isTrue: true, revelation: 'Isso mesmo! ' });
+    setFormData({ text: '', isTrue: true, revelation: 'Isso mesmo! ', password: '' });
     setEditingId(null);
     setShowAddForm(false);
   };
+
+  // Tela de autenticação
+  if (!isAuthenticated) {
+    return (
+      <motion.div
+        className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      >
+        <motion.div
+          className="bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 w-full max-w-md p-8"
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.8, opacity: 0 }}
+        >
+          <div className="text-center mb-6">
+            <Lock className="w-12 h-12 text-white mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-white mb-2">Área Restrita</h2>
+            <p className="text-white/70">Digite a senha para acessar o painel de administração</p>
+          </div>
+
+          <form onSubmit={handlePasswordSubmit} className="space-y-4">
+            <div>
+              <input
+                type="password"
+                value={passwordInput}
+                onChange={(e) => setPasswordInput(e.target.value)}
+                className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:ring-2 focus:ring-blue-500 outline-none text-center"
+                placeholder="Digite a senha"
+                autoFocus
+              />
+            </div>
+            
+            <div className="flex gap-3">
+              <Button
+                type="submit"
+                className="flex-1 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white"
+              >
+                Entrar
+              </Button>
+              <Button
+                type="button"
+                onClick={onClose}
+                variant="outline"
+                className="border-white/20 text-white hover:bg-white/10"
+              >
+                Cancelar
+              </Button>
+            </div>
+          </form>
+        </motion.div>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div
@@ -114,7 +208,7 @@ const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
               <Button
                 onClick={() => {
                   setShowAddForm(true);
-                  setFormData({ text: '', isTrue: true, revelation: 'Isso mesmo! ' }); // Reset form for new entry
+                  setFormData({ text: '', isTrue: true, revelation: 'Isso mesmo! ', password: '' });
                 }}
                 className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white"
               >
@@ -181,6 +275,17 @@ const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
                         <span className="text-red-400">Mito</span>
                       </label>
                     </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-white/80 mb-2 text-sm">Senha de Confirmação</label>
+                    <input
+                      type="password"
+                      value={formData.password}
+                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                      className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:ring-2 focus:ring-blue-500 outline-none"
+                      placeholder="Digite a senha para confirmar"
+                    />
                   </div>
                   
                   <div className="flex gap-3 pt-2">
