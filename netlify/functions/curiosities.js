@@ -1,12 +1,16 @@
-const admin = require('firebase-admin');
+const admin = require("firebase-admin");
 
 // Inicializar Firebase Admin SDK
 if (!admin.apps.length) {
+  const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
+  console.log("Firebase Private Key (processed):"); // Log para depuração
+  console.log(privateKey ? privateKey.substring(0, 50) + "..." : "Not found");
+
   admin.initializeApp({
     credential: admin.credential.cert({
       projectId: process.env.FIREBASE_PROJECT_ID,
       privateKeyId: process.env.FIREBASE_PRIVATE_KEY_ID,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+      privateKey: privateKey,
       clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
       clientId: process.env.FIREBASE_CLIENT_ID,
       authUri: "https://accounts.google.com/o/oauth2/auth",
@@ -18,23 +22,23 @@ if (!admin.apps.length) {
 }
 
 const db = admin.firestore();
-const COLLECTION_NAME = 'curiosities';
-const ADMIN_PASSWORD = '6453';
+const COLLECTION_NAME = "curiosities";
+const ADMIN_PASSWORD = "6453";
 
 exports.handler = async (event, context) => {
   // Configurar CORS
   const headers = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS"
   };
 
   // Responder a requisições OPTIONS (preflight)
-  if (event.httpMethod === 'OPTIONS') {
+  if (event.httpMethod === "OPTIONS") {
     return {
       statusCode: 200,
       headers,
-      body: ''
+      body: ""
     };
   }
 
@@ -43,9 +47,9 @@ exports.handler = async (event, context) => {
     const path = event.path;
 
     switch (method) {
-      case 'GET':
+      case "GET":
         // Buscar todas as curiosidades
-        const snapshot = await db.collection(COLLECTION_NAME).orderBy('createdAt', 'asc').get();
+        const snapshot = await db.collection(COLLECTION_NAME).orderBy("createdAt", "asc").get();
         const curiosities = [];
         snapshot.forEach(doc => {
           curiosities.push({
@@ -60,7 +64,7 @@ exports.handler = async (event, context) => {
           body: JSON.stringify(curiosities)
         };
 
-      case 'POST':
+      case "POST":
         // Adicionar nova curiosidade
         const newData = JSON.parse(event.body);
         
@@ -69,7 +73,7 @@ exports.handler = async (event, context) => {
           return {
             statusCode: 401,
             headers,
-            body: JSON.stringify({ error: 'Senha incorreta' })
+            body: JSON.stringify({ error: "Senha incorreta" })
           };
         }
 
@@ -88,11 +92,11 @@ exports.handler = async (event, context) => {
           body: JSON.stringify({ 
             id: docRef.id, 
             ...curiosityData,
-            message: 'Curiosidade adicionada com sucesso' 
+            message: "Curiosidade adicionada com sucesso" 
           })
         };
 
-      case 'PUT':
+      case "PUT":
         // Atualizar curiosidade existente
         const updateData = JSON.parse(event.body);
         const curiosityId = event.queryStringParameters?.id;
@@ -101,7 +105,7 @@ exports.handler = async (event, context) => {
           return {
             statusCode: 400,
             headers,
-            body: JSON.stringify({ error: 'ID da curiosidade é obrigatório' })
+            body: JSON.stringify({ error: "ID da curiosidade é obrigatório" })
           };
         }
 
@@ -110,7 +114,7 @@ exports.handler = async (event, context) => {
           return {
             statusCode: 401,
             headers,
-            body: JSON.stringify({ error: 'Senha incorreta' })
+            body: JSON.stringify({ error: "Senha incorreta" })
           };
         }
 
@@ -128,11 +132,11 @@ exports.handler = async (event, context) => {
           body: JSON.stringify({ 
             id: curiosityId,
             ...updateCuriosityData,
-            message: 'Curiosidade atualizada com sucesso' 
+            message: "Curiosidade atualizada com sucesso" 
           })
         };
 
-      case 'DELETE':
+      case "DELETE":
         // Deletar curiosidade
         const deleteId = event.queryStringParameters?.id;
         const deletePassword = event.queryStringParameters?.password;
@@ -141,7 +145,7 @@ exports.handler = async (event, context) => {
           return {
             statusCode: 400,
             headers,
-            body: JSON.stringify({ error: 'ID da curiosidade é obrigatório' })
+            body: JSON.stringify({ error: "ID da curiosidade é obrigatório" })
           };
         }
 
@@ -150,7 +154,7 @@ exports.handler = async (event, context) => {
           return {
             statusCode: 401,
             headers,
-            body: JSON.stringify({ error: 'Senha incorreta' })
+            body: JSON.stringify({ error: "Senha incorreta" })
           };
         }
 
@@ -159,24 +163,24 @@ exports.handler = async (event, context) => {
         return {
           statusCode: 200,
           headers,
-          body: JSON.stringify({ message: 'Curiosidade deletada com sucesso' })
+          body: JSON.stringify({ message: "Curiosidade deletada com sucesso" })
         };
 
       default:
         return {
           statusCode: 405,
           headers,
-          body: JSON.stringify({ error: 'Método não permitido' })
+          body: JSON.stringify({ error: "Método não permitido" })
         };
     }
 
   } catch (error) {
-    console.error('Erro na função:', error);
+    console.error("Erro na função:", error);
     return {
       statusCode: 500,
       headers,
       body: JSON.stringify({ 
-        error: 'Erro interno do servidor',
+        error: "Erro interno do servidor",
         details: error.message 
       })
     };

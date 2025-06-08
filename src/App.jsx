@@ -104,23 +104,21 @@ const cardVariants = {
 function App() {
   const [showWelcome, setShowWelcome] = useState(true);
   const [curiosities, setCuriosities] = useState(initialCuriosities);
+  const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
   
   const [currentIndex, setCurrentIndex] = useState(0);
-  // Iniciar a contagem em 1 em vez de 0
   const [viewedCount, setViewedCount] = useState(1);
   const [showAdmin, setShowAdmin] = useState(false);
   const [backgroundIndex, setBackgroundIndex] = useState(0);
   const [showFinalMessage, setShowFinalMessage] = useState(false);
-  const [direction, setDirection] = useState(1); // Direção da animação (1: para frente, -1: para trás)
+  const [direction, setDirection] = useState(1); 
   const [isCardTransitioning, setIsCardTransitioning] = useState(false);
   
-  // Estados para controlar a transição entre cores
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [prevBackgroundIndex, setPrevBackgroundIndex] = useState(0);
   const [nextBackgroundIndex, setNextBackgroundIndex] = useState(0);
   const [transitionProgress, setTransitionProgress] = useState(0);
 
-  // Função para buscar curiosidades do backend
   const fetchCuriosities = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/curiosities`);
@@ -132,7 +130,6 @@ function App() {
       }
     } catch (error) {
       console.error('Erro ao buscar curiosidades:', error);
-      // Manter as curiosidades iniciais em caso de erro
     }
   };
 
@@ -144,12 +141,17 @@ function App() {
     setShowWelcome(false);
   };
 
+  const handlePasswordCancel = () => {
+    setShowPasswordPrompt(false);
+  };
+
+  const handlePasswordSuccess = () => {
+    setShowPasswordPrompt(false);
+  };
+
   const handleNext = () => {
     if (currentIndex < curiosities.length - 1) {
-      // Define a direção da animação para frente
       setDirection(1);
-      
-      // Iniciar a transição do cartão e cores simultaneamente
       setIsCardTransitioning(true);
       setIsTransitioning(true);
       
@@ -157,13 +159,10 @@ function App() {
       const nextIndex = (backgroundIndex + 1) % backgroundGradients.length;
       setNextBackgroundIndex(nextIndex);
       
-      // Atualizar o índice atual e a contagem imediatamente
       const newIndex = currentIndex + 1;
       setCurrentIndex(newIndex);
-      // Incrementar a contagem corretamente (começando em 1, não em 0)
       setViewedCount(newIndex + 1);
       
-      // Animar a transição de cores
       let progress = 0;
       const animationInterval = setInterval(() => {
         progress += 0.05;
@@ -172,15 +171,13 @@ function App() {
         if (progress >= 1) {
           clearInterval(animationInterval);
           setBackgroundIndex(nextIndex);
-          
-          // Finalizar a transição após completar
           setTimeout(() => {
             setIsTransitioning(false);
             setTransitionProgress(0);
             setIsCardTransitioning(false);
           }, 100);
         }
-      }, 20); // Atualiza a cada 20ms para uma animação suave
+      }, 20);
     } else {
       setShowFinalMessage(true);
     }
@@ -188,7 +185,6 @@ function App() {
 
   const handleReset = () => {
     setCurrentIndex(0);
-    // Resetar a contagem para 1 em vez de 0
     setViewedCount(1);
     setBackgroundIndex(0);
     setShowFinalMessage(false);
@@ -219,12 +215,6 @@ function App() {
       }
     } catch (error) {
       console.error('Erro ao adicionar curiosidade:', error);
-      // Fallback para localStorage em caso de erro
-      const curiosity = {
-        id: Date.now(),
-        ...newCuriosity
-      };
-      setCuriosities(prev => [...prev, curiosity]);
     }
   };
 
@@ -248,10 +238,6 @@ function App() {
       }
     } catch (error) {
       console.error('Erro ao editar curiosidade:', error);
-      // Fallback para localStorage em caso de erro
-      setCuriosities(prev => 
-        prev.map(c => c.id === id ? { ...c, ...updatedCuriosity } : c)
-      );
     }
   };
 
@@ -277,22 +263,10 @@ function App() {
       }
     } catch (error) {
       console.error('Erro ao deletar curiosidade:', error);
-      // Fallback para localStorage em caso de erro
-      const newCuriosities = curiosities.filter(c => c.id !== id);
-      setCuriosities(newCuriosities);
-      
-      if (newCuriosities.length === 0) {
-        setCurrentIndex(0);
-        setShowFinalMessage(true); 
-      } else if (currentIndex >= newCuriosities.length) {
-        setCurrentIndex(Math.max(0, newCuriosities.length - 1));
-      }
     }
   };
 
-  // Função para interpolar cores durante a transição
   const interpolateColors = (colorA, colorB, factor) => {
-    // Converte cores hex para RGB
     const hexToRgb = (hex) => {
       const r = parseInt(hex.slice(1, 3), 16);
       const g = parseInt(hex.slice(3, 5), 16);
@@ -300,10 +274,8 @@ function App() {
       return [r, g, b];
     };
     
-    // Interpola entre dois valores
     const lerp = (a, b, factor) => Math.round(a + (b - a) * factor);
     
-    // Converte RGB para hex
     const rgbToHex = (r, g, b) => `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
     
     const rgbA = hexToRgb(colorA);
@@ -316,7 +288,6 @@ function App() {
     return rgbToHex(r, g, b);
   };
 
-  // Calcula o gradiente atual baseado na transição
   const getCurrentGradient = () => {
     if (!isTransitioning) {
       return `linear-gradient(135deg, ${backgroundGradients[backgroundIndex][0]}, ${backgroundGradients[backgroundIndex][1]}, ${backgroundGradients[backgroundIndex][2]})`;
@@ -343,14 +314,78 @@ function App() {
     return `linear-gradient(135deg, ${color1}, ${color2}, ${color3})`;
   };
 
-  // Renderiza a página de boas-vindas se showWelcome for true
   if (showWelcome) {
     return <WelcomePage onStart={handleStart} />;
   }
 
+  if (showPasswordPrompt) {
+    return (
+      <div className="h-screen w-screen relative overflow-hidden">
+        <div 
+          className="absolute inset-0 transition-all duration-500"
+          style={{
+            background: getCurrentGradient(),
+            transition: "background 0.5s ease-in-out"
+          }}
+        />
+        
+        <ParticleSystem />
+        
+        <div className="relative z-10 h-full w-full flex items-center justify-center">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white/10 backdrop-blur-lg rounded-3xl p-6 border border-white/20 max-w-md w-full mx-4"
+          >
+            <div className="text-center mb-6">
+              <div className="text-4xl mb-4">🔒</div>
+              <h2 className="text-xl font-bold text-white mb-2">Área Restrita</h2>
+              <p className="text-white/70 text-sm">Digite a senha para acessar o painel de administração</p>
+            </div>
+            
+            <div className="space-y-4">
+              <input
+                type="password"
+                placeholder="Digite a senha"
+                className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' && e.target.value === '6453') {
+                    setShowAdmin(true);
+                    handlePasswordSuccess();
+                  }
+                }}
+              />
+              
+              <div className="flex gap-3">
+                <Button
+                  onClick={(e) => {
+                    const input = e.target.closest('.space-y-4').querySelector('input');
+                    if (input.value === '6453') {
+                      setShowAdmin(true);
+                      handlePasswordSuccess();
+                    }
+                  }}
+                  className="flex-1 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white"
+                >
+                  Entrar
+                </Button>
+                <Button
+                  onClick={handlePasswordCancel}
+                  variant="outline"
+                  className="flex-1 border-white/20 text-white hover:bg-white/10"
+                >
+                  Cancelar
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="h-screen w-screen relative overflow-hidden">
-      {/* Fundo com gradiente animado */}
       <div 
         className="absolute inset-0 transition-all duration-500"
         style={{
@@ -383,7 +418,7 @@ function App() {
             </motion.div>
             
             <Button
-              onClick={() => setShowAdmin(!showAdmin)}
+              onClick={() => setShowPasswordPrompt(true)}
               variant="outline"
               size="icon"
               className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 w-8 h-8"
@@ -454,45 +489,36 @@ function App() {
                   
                   <Button
                     onClick={handleReset}
-                    className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-semibold px-4 py-2 sm:px-6 sm:py-2 rounded-full animate-pulse-glow text-sm sm:text-base"
+                    className="mt-4 sm:mt-6 bg-white/20 text-white hover:bg-white/30 transition-all duration-300"
                   >
-                    {curiosities.length === 0 ? "Adicionar Curiosidades" : "Recomeçar Jornada"}
+                    Recomeçar
                   </Button>
                 </motion.div>
               </motion.div>
             ) : (
-              <motion.div
-                key={currentIndex}
-                custom={direction}
-                variants={cardVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                className="w-full"
-              >
-                <CuriosityCard
-                  curiosity={curiosities[currentIndex]}
-                  onNext={handleNext}
-                  isLast={currentIndex === curiosities.length - 1}
-                />
-              </motion.div>
+              <CuriosityCard 
+                key={curiosities[currentIndex]?.id} 
+                curiosity={curiosities[currentIndex]} 
+                onNext={handleNext} 
+                isLast={currentIndex === curiosities.length - 1}
+              />
             )}
           </AnimatePresence>
         </main>
 
-        <AnimatePresence>
-          {showAdmin && (
-            <AdminPanel
-              curiosities={curiosities}
-              onAdd={addCuriosity}
-              onEdit={editCuriosity}
-              onDelete={deleteCuriosity}
-              onClose={() => setShowAdmin(false)}
-            />
-          )}
-        </AnimatePresence>
+        <footer className="p-3 sm:p-4 text-center text-white/70 text-xs sm:text-sm" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
+          Desenvolvido com ❤️ por Jociel
+        </footer>
       </div>
-      
+
+      <AdminPanel 
+        isOpen={showAdmin} 
+        onClose={() => setShowAdmin(false)} 
+        curiosities={curiosities} 
+        addCuriosity={addCuriosity} 
+        editCuriosity={editCuriosity} 
+        deleteCuriosity={deleteCuriosity}
+      />
       <Toaster />
     </div>
   );
