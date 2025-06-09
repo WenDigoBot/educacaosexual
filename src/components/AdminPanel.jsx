@@ -72,7 +72,7 @@ const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
         });
         setShowAddForm(false);
       }
-      setFormData({ text: '', isTrue: true, revelation: 'Isso mesmo! ' });
+      setFormData({ text: '', isTrue: true, revelation: '' });
 
       // Após salvar localmente, tentar atualizar no GitHub automaticamente
       try {
@@ -164,8 +164,8 @@ const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
     setShowPasswordPrompt(true);
   };
 
-  const handleCancel = () => {
-    setFormData({ text: '', isTrue: true, revelation: 'Isso mesmo! ' });
+  const handleCancel = () =>     setFormData({ text: 
+'\', isTrue: true, revelation: '' });
     setEditingId(null);
     setShowAddForm(false);
   };
@@ -200,8 +200,8 @@ const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
             {!showAddForm && !editingId && (
               <Button
                 onClick={() => {
-                  setShowAddForm(true);
-                  setFormData({ text: '', isTrue: true, revelation: 'Isso mesmo! ' }); 
+                  setShowAddForm(true);                  setFormData({ text: 
+'', isTrue: true, revelation: '' }); 
                 }}
                 className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white"
               >
@@ -240,7 +240,7 @@ const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
                       onChange={(e) => setFormData({ ...formData, revelation: e.target.value })}
                       className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 resize-none focus:ring-2 focus:ring-blue-500 outline-none"
                       rows="4"
-                      placeholder="Ex: Na verdade, usar dois preservativos pode causar atrito e aumentar o risco de rompimento."
+                      placeholder=""
                     />
                   </div>
                   
