@@ -164,8 +164,8 @@ const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
     setShowPasswordPrompt(true);
   };
 
-  const handleCancel = () =>     setFormData({ text: 
-'\', isTrue: true, revelation: '' });
+  const handleCancel = () => {
+    setFormData({ text: '', isTrue: true, revelation: '' });
     setEditingId(null);
     setShowAddForm(false);
   };
