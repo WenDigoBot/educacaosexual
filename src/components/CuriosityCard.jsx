@@ -159,7 +159,7 @@ const CuriosityCard = ({ curiosity, onNext, onPrevious, currentIndex, isLast, di
             onClick={onPrevious}
             variant="outline"
             size="icon"
-            className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 w-10 h-10 sm:w-12 sm:h-12"
+            className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 w-10 h-10 sm:w-12 sm:h-12 transition-all duration-300 ease-in-out transform hover:scale-105 animate-pulse-glow"
             whileTap={{ scale: 0.95 }}
           >
             <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
