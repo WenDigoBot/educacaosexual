@@ -8,39 +8,41 @@ import WelcomePage from '@/components/WelcomePage';
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/toaster';
 
+const API_BASE_URL = '/.netlify/functions';
+
 const initialCuriosities = [
   {
-    id: 1,
+    id: 'initial-1',
     text: "O preservativo masculino tem 98% de eficácia quando usado corretamente.",
     isTrue: true,
     revelation: "Isso mesmo! Quando usado de forma consistente e correta, o preservativo é altamente eficaz na prevenção da gravidez e ISTs."
   },
   {
-    id: 2,
+    id: 'initial-2',
     text: "A pílula anticoncepcional protege contra todas as ISTs.",
     isTrue: false,
     revelation: "Na verdade, a pílula anticoncepcional é um método hormonal que previne a gravidez, mas não oferece proteção contra Infecções Sexualmente Transmissíveis (ISTs). Para proteção contra ISTs, o uso de preservativos é essencial."
   },
   {
-    id: 3,
+    id: 'initial-3',
     text: "É possível engravidar durante a menstruação.",
     isTrue: true,
     revelation: "Isso mesmo! Embora menos provável, a ovulação pode ocorrer perto do período menstrual ou o espermatozoide pode sobreviver no corpo por alguns dias, tornando a gravidez possível."
   },
   {
-    id: 4,
+    id: 'initial-4',
     text: "O HPV pode causar câncer de colo do útero.",
     isTrue: true,
     revelation: "Isso mesmo! Certos tipos de HPV são a principal causa de câncer de colo do útero. A vacinação e exames preventivos são importantes."
   },
   {
-    id: 5,
+    id: 'initial-5',
     text: "Fazer xixi após a relação sexual previne 100% das infecções urinárias.",
     isTrue: false,
     revelation: "Na verdade, urinar após a relação sexual pode ajudar a eliminar bactérias da uretra, reduzindo o risco de infecção urinária, mas não garante 100% de prevenção. Outras medidas de higiene também são importantes."
   },
   {
-    id: 6,
+    id: 'initial-6',
     text: "A camisinha feminina é tão eficaz quanto a masculina.",
     isTrue: true,
     revelation: "Isso mesmo! Quando usada corretamente, a camisinha feminina oferece um nível de proteção similar à masculina contra gravidez e ISTs."
@@ -56,7 +58,6 @@ const backgroundGradients = [
   ['#0f766e', '#064e3b', '#059669']  
 ];
 
-// Variantes de animação para o cartão
 const cardVariants = {
   enter: (direction) => {
     return {
@@ -88,62 +89,65 @@ const cardVariants = {
 };
 
 function App() {
-  const [showWelcome, setShowWelcome] = useState(true);
-  const [curiosities, setCuriosities] = useState(() => {
-    const saved = localStorage.getItem('healthCuriosities');
-    if (saved) {
-      const parsedCuriosities = JSON.parse(saved);
-      return parsedCuriosities.map(c => ({
-        ...initialCuriosities.find(ic => ic.id === c.id) || { revelation: c.isTrue ? "Isso mesmo!" : "Na verdade..." }, 
-        ...c 
-      }));
-    }
-    return initialCuriosities;
-  });
+  const [currentView, setCurrentView] = useState('welcome'); // 'welcome', 'curiosities', 'admin'
+  const [curiosities, setCuriosities] = useState(initialCuriosities);
   
   const [currentIndex, setCurrentIndex] = useState(0);
-  // Iniciar a contagem em 1 em vez de 0
   const [viewedCount, setViewedCount] = useState(1);
-  const [showAdmin, setShowAdmin] = useState(false);
   const [backgroundIndex, setBackgroundIndex] = useState(0);
   const [showFinalMessage, setShowFinalMessage] = useState(false);
-  const [direction, setDirection] = useState(1); // Direção da animação (1: para frente, -1: para trás)
-  const [isCardTransitioning, setIsCardTransitioning] = useState(false);
+  const [direction, setDirection] = useState(1);
   
-  // Estados para controlar a transição entre cores
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [prevBackgroundIndex, setPrevBackgroundIndex] = useState(0);
   const [nextBackgroundIndex, setNextBackgroundIndex] = useState(0);
   const [transitionProgress, setTransitionProgress] = useState(0);
 
-  useEffect(() => {
-    localStorage.setItem('healthCuriosities', JSON.stringify(curiosities));
-  }, [curiosities]);
+  const fetchCuriosities = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/curiosities`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.length > 0) {
+          setCuriosities(data);
+        } else {
+          setCuriosities(initialCuriosities); // Fallback para curiosidades iniciais se o banco estiver vazio
+        }
+      } else {
+        console.error('Erro ao buscar curiosidades:', response.statusText);
+        setCuriosities(initialCuriosities); // Fallback em caso de erro na requisição
+      }
+    } catch (error) {
+      console.error('Erro ao buscar curiosidades:', error);
+      setCuriosities(initialCuriosities); // Fallback em caso de erro de rede/parsing
+    }
+  };
 
-  const handleStart = () => {
-    setShowWelcome(false);
+  useEffect(() => {
+    fetchCuriosities();
+  }, []);
+
+  const handleStartJourney = () => {
+    setCurrentView('curiosities');
+  };
+
+  const handleOpenAdmin = () => {
+    setCurrentView('admin');
+  };
+
+  const handleCloseAdmin = () => {
+    setCurrentView('curiosities');
   };
 
   const handleNext = () => {
     if (currentIndex < curiosities.length - 1) {
-      // Define a direção da animação para frente
       setDirection(1);
-      
-      // Iniciar a transição do cartão e cores simultaneamente
-      setIsCardTransitioning(true);
       setIsTransitioning(true);
       
       setPrevBackgroundIndex(backgroundIndex);
       const nextIndex = (backgroundIndex + 1) % backgroundGradients.length;
       setNextBackgroundIndex(nextIndex);
       
-      // Atualizar o índice atual e a contagem imediatamente
-      const newIndex = currentIndex + 1;
-      setCurrentIndex(newIndex);
-      // Incrementar a contagem corretamente (começando em 1, não em 0)
-      setViewedCount(newIndex + 1);
-      
-      // Animar a transição de cores
       let progress = 0;
       const animationInterval = setInterval(() => {
         progress += 0.05;
@@ -152,15 +156,17 @@ function App() {
         if (progress >= 1) {
           clearInterval(animationInterval);
           setBackgroundIndex(nextIndex);
-          
-          // Finalizar a transição após completar
           setTimeout(() => {
             setIsTransitioning(false);
             setTransitionProgress(0);
-            setIsCardTransitioning(false);
           }, 100);
         }
-      }, 20); // Atualiza a cada 20ms para uma animação suave
+      }, 20);
+      
+      const newIndex = currentIndex + 1;
+      setCurrentIndex(newIndex);
+      setViewedCount(newIndex + 1);
+
     } else {
       setShowFinalMessage(true);
     }
@@ -168,47 +174,91 @@ function App() {
 
   const handleReset = () => {
     setCurrentIndex(0);
-    // Resetar a contagem para 1 em vez de 0
     setViewedCount(1);
     setBackgroundIndex(0);
     setShowFinalMessage(false);
     if (curiosities.length === 0) {
-      setShowAdmin(true);
+      setCurrentView('admin');
     }
   };
 
-  const addCuriosity = (newCuriosity) => {
-    const curiosity = {
-      id: Date.now(),
-      ...newCuriosity
-    };
-    setCuriosities(prev => [...prev, curiosity]);
-    if (showFinalMessage && curiosities.length === 0) {
-      setShowFinalMessage(false);
+  const addCuriosity = async (newCuriosity) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/curiosities`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newCuriosity),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setCuriosities(prev => [...prev, { id: data.id, ...newCuriosity }]);
+        if (showFinalMessage && curiosities.length === 0) {
+          setShowFinalMessage(false);
+        }
+        fetchCuriosities(); // Recarrega as curiosidades para garantir consistência
+      } else {
+        const error = await response.json();
+        throw new Error(error.error || 'Erro ao adicionar curiosidade');
+      }
+    } catch (error) {
+      console.error('Erro ao adicionar curiosidade:', error);
     }
   };
 
-  const editCuriosity = (id, updatedCuriosity) => {
-    setCuriosities(prev => 
-      prev.map(c => c.id === id ? { ...c, ...updatedCuriosity } : c)
-    );
-  };
+  const editCuriosity = async (id, updatedCuriosity) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/curiosities?id=${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedCuriosity),
+      });
 
-  const deleteCuriosity = (id) => {
-    const newCuriosities = curiosities.filter(c => c.id !== id);
-    setCuriosities(newCuriosities);
-    
-    if (newCuriosities.length === 0) {
-      setCurrentIndex(0);
-      setShowFinalMessage(true); 
-    } else if (currentIndex >= newCuriosities.length) {
-      setCurrentIndex(Math.max(0, newCuriosities.length - 1));
+      if (response.ok) {
+        setCuriosities(prev => 
+          prev.map(c => c.id === id ? { ...c, ...updatedCuriosity } : c)
+        );
+        fetchCuriosities(); // Recarrega as curiosidades para garantir consistência
+      } else {
+        const error = await response.json();
+        throw new Error(error.error || 'Erro ao editar curiosidade');
+      }
+    } catch (error) {
+      console.error('Erro ao editar curiosidade:', error);
     }
   };
 
-  // Função para interpolar cores durante a transição
+  const deleteCuriosity = async (id) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/curiosities?id=${id}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        const newCuriosities = curiosities.filter(c => c.id !== id);
+        setCuriosities(newCuriosities);
+        
+        if (newCuriosities.length === 0) {
+          setCurrentIndex(0);
+          setShowFinalMessage(true); 
+        } else if (currentIndex >= newCuriosities.length) {
+          setCurrentIndex(Math.max(0, newCuriosities.length - 1));
+        }
+        fetchCuriosities(); // Recarrega as curiosidades para garantir consistência
+      } else {
+        const error = await response.json();
+        throw new Error(error.error || 'Erro ao deletar curiosidade');
+      }
+    } catch (error) {
+      console.error('Erro ao deletar curiosidade:', error);
+    }
+  };
+
   const interpolateColors = (colorA, colorB, factor) => {
-    // Converte cores hex para RGB
     const hexToRgb = (hex) => {
       const r = parseInt(hex.slice(1, 3), 16);
       const g = parseInt(hex.slice(3, 5), 16);
@@ -216,10 +266,8 @@ function App() {
       return [r, g, b];
     };
     
-    // Interpola entre dois valores
     const lerp = (a, b, factor) => Math.round(a + (b - a) * factor);
     
-    // Converte RGB para hex
     const rgbToHex = (r, g, b) => `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
     
     const rgbA = hexToRgb(colorA);
@@ -232,7 +280,6 @@ function App() {
     return rgbToHex(r, g, b);
   };
 
-  // Calcula o gradiente atual baseado na transição
   const getCurrentGradient = () => {
     if (!isTransitioning) {
       return `linear-gradient(135deg, ${backgroundGradients[backgroundIndex][0]}, ${backgroundGradients[backgroundIndex][1]}, ${backgroundGradients[backgroundIndex][2]})`;
@@ -259,14 +306,25 @@ function App() {
     return `linear-gradient(135deg, ${color1}, ${color2}, ${color3})`;
   };
 
-  // Renderiza a página de boas-vindas se showWelcome for true
-  if (showWelcome) {
-    return <WelcomePage onStart={handleStart} />;
+  if (currentView === 'welcome') {
+    return <WelcomePage onStart={handleStartJourney} />;
+  }
+
+  if (currentView === 'admin') {
+    return (
+      <AdminPanel 
+        isOpen={true} 
+        onClose={handleCloseAdmin} 
+        curiosities={curiosities} 
+        addCuriosity={addCuriosity} 
+        editCuriosity={editCuriosity} 
+        deleteCuriosity={deleteCuriosity}
+      />
+    );
   }
 
   return (
     <div className="h-screen w-screen relative overflow-hidden">
-      {/* Fundo com gradiente animado */}
       <div 
         className="absolute inset-0 transition-all duration-500"
         style={{
@@ -299,7 +357,7 @@ function App() {
             </motion.div>
             
             <Button
-              onClick={() => setShowAdmin(!showAdmin)}
+              onClick={handleOpenAdmin}
               variant="outline"
               size="icon"
               className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 w-8 h-8"
@@ -396,23 +454,26 @@ function App() {
           </AnimatePresence>
         </main>
 
-        <AnimatePresence>
-          {showAdmin && (
-            <AdminPanel
-              curiosities={curiosities}
-              onAdd={addCuriosity}
-              onEdit={editCuriosity}
-              onDelete={deleteCuriosity}
-              onClose={() => setShowAdmin(false)}
-            />
-          )}
-        </AnimatePresence>
+        <footer className="p-3 sm:p-4 text-center text-white/70 text-xs sm:text-sm" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
+          Desenvolvido com ❤️ por Jociel
+        </footer>
       </div>
       
+      {currentView === 'admin' && (
+        <AdminPanel
+          isOpen={true}
+          onClose={handleCloseAdmin}
+          curiosities={curiosities}
+          addCuriosity={addCuriosity}
+          editCuriosity={editCuriosity}
+          deleteCuriosity={deleteCuriosity}
+        />
+      )}
       <Toaster />
     </div>
   );
 }
 
 export default App;
+
 
