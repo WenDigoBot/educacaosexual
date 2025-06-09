@@ -87,7 +87,7 @@ const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
           },
           body: JSON.stringify({
             curiosities: updatedCuriosities,
-            password: '5278'
+            password: 'admin123'
           })
         });
 
