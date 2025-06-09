@@ -167,8 +167,42 @@ function App() {
     setShowDownloadPassword(true);
   };
 
-  const handleDownloadAuthenticate = () => {
-    downloadUpdatedFile();
+  const handleDownloadAuthenticate = async () => {
+    try {
+      // Enviar dados para a Netlify Function
+      const response = await fetch('/.netlify/functions/update-github', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          curiosities: curiosities,
+          password: 'admin123' // A senha será validada na Netlify Function
+        })
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: "Sucesso!",
+          description: "Curiosidades atualizadas no GitHub automaticamente! O site será atualizado em breve.",
+        });
+      } else {
+        throw new Error(result.error || 'Erro desconhecido');
+      }
+    } catch (error) {
+      console.error('Erro ao atualizar GitHub:', error);
+      toast({
+        title: "Erro na Atualização",
+        description: `Erro ao atualizar o GitHub: ${error.message}. Fazendo download local como alternativa.`,
+        variant: "destructive"
+      });
+      
+      // Fallback para download local
+      downloadUpdatedFile();
+    }
+    
     setShowDownloadPassword(false);
   };
 

@@ -44,7 +44,7 @@ const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.text.trim() || !formData.revelation.trim()) {
       toast({
@@ -56,7 +56,7 @@ const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
     }
 
     // Armazena a ação e exibe o prompt de senha
-    setActionToPerform(() => () => {
+    setActionToPerform(() => async () => {
       if (editingId) {
         onEdit(editingId, formData);
         toast({
@@ -73,6 +73,42 @@ const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
         setShowAddForm(false);
       }
       setFormData({ text: '', isTrue: true, revelation: 'Isso mesmo! ' });
+
+      // Após salvar localmente, tentar atualizar no GitHub automaticamente
+      try {
+        const updatedCuriosities = editingId 
+          ? curiosities.map(c => c.id === editingId ? { ...c, ...formData } : c)
+          : [...curiosities, { id: Date.now(), ...formData }];
+
+        const response = await fetch('/.netlify/functions/update-github', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            curiosities: updatedCuriosities,
+            password: 'admin123'
+          })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          toast({
+            title: "GitHub Atualizado!",
+            description: "As alterações foram enviadas para o GitHub automaticamente.",
+          });
+        } else {
+          throw new Error(result.error || 'Erro desconhecido');
+        }
+      } catch (error) {
+        console.error('Erro ao atualizar GitHub:', error);
+        toast({
+          title: "Aviso",
+          description: "Alteração salva localmente, mas não foi possível atualizar o GitHub automaticamente.",
+          variant: "destructive"
+        });
+      }
     });
     setShowPasswordPrompt(true);
   };
@@ -82,14 +118,48 @@ const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
     setShowAddForm(false); 
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     // Armazena a ação e exibe o prompt de senha
-    setActionToPerform(() => () => {
+    setActionToPerform(() => async () => {
       onDelete(id);
       toast({
         title: "Removido",
         description: "Curiosidade removida com sucesso!"
       });
+
+      // Após deletar localmente, tentar atualizar no GitHub automaticamente
+      try {
+        const updatedCuriosities = curiosities.filter(c => c.id !== id);
+
+        const response = await fetch('/.netlify/functions/update-github', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            curiosities: updatedCuriosities,
+            password: 'admin123'
+          })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          toast({
+            title: "GitHub Atualizado!",
+            description: "A remoção foi enviada para o GitHub automaticamente.",
+          });
+        } else {
+          throw new Error(result.error || 'Erro desconhecido');
+        }
+      } catch (error) {
+        console.error('Erro ao atualizar GitHub:', error);
+        toast({
+          title: "Aviso",
+          description: "Remoção feita localmente, mas não foi possível atualizar o GitHub automaticamente.",
+          variant: "destructive"
+        });
+      }
     });
     setShowPasswordPrompt(true);
   };
