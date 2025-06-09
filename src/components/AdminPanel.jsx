@@ -164,11 +164,18 @@ const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
     setShowPasswordPrompt(true);
   };
 
-  const handleCancel = () => {
-    setFormData({ text: '', isTrue: true, revelation: '' });
+  const handleCancel = () =>     setFormData({ text: 
+'\', isTrue: true, revelation: '' });
     setEditingId(null);
     setShowAddForm(false);
-  };  exit={{ opacity: 0 }}
+  };
+
+  return (
+    <motion.div
+      className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
     >
       <motion.div
         className="bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
