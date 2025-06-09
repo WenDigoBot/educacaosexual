@@ -87,7 +87,7 @@ const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
           },
           body: JSON.stringify({
             curiosities: updatedCuriosities,
-            password: 'admin123'
+            password: '5278'
           })
         });
 
@@ -95,17 +95,17 @@ const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
 
         if (response.ok) {
           toast({
-            title: "GitHub Atualizado!",
-            description: "As alterações foram enviadas para o GitHub automaticamente.",
+            title: "Atualizando!",
+            description: "Ótimo! Suas alterações entrarão em vigor em 3 minutos.",
           });
         } else {
           throw new Error(result.error || 'Erro desconhecido');
         }
       } catch (error) {
-        console.error('Erro ao atualizar GitHub:', error);
+        console.error('Erro ao atualizar:', error);
         toast({
           title: "Aviso",
-          description: "Alteração salva localmente, mas não foi possível atualizar o GitHub automaticamente.",
+          description: "Alteração salva localmente, mas não foi possível atualizar permanentemente.",
           variant: "destructive"
         });
       }
@@ -146,17 +146,17 @@ const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
 
         if (response.ok) {
           toast({
-            title: "GitHub Atualizado!",
-            description: "A remoção foi enviada para o GitHub automaticamente.",
+            title: "Parabéns!",
+            description: "A atualização será aplicada em 3 minutos.",
           });
         } else {
           throw new Error(result.error || 'Erro desconhecido');
         }
       } catch (error) {
-        console.error('Erro ao atualizar GitHub:', error);
+        console.error('Erro ao atualizar:', error);
         toast({
           title: "Aviso",
-          description: "Remoção feita localmente, mas não foi possível atualizar o GitHub automaticamente.",
+          description: "Remoção feita localmente, mas não foi possível atualizar permanentemente.",
           variant: "destructive"
         });
       }
