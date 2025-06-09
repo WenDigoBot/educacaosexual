@@ -3,11 +3,14 @@ import { motion } from 'framer-motion';
 import { X, Plus, Edit, Trash2, Save, Undo as Cancel } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
+import PasswordPrompt from './PasswordPrompt'; // Importar o componente de senha
 
 const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({ text: '', isTrue: true, revelation: '' });
+  const [showPasswordPrompt, setShowPasswordPrompt] = useState(false); // Estado para controlar o prompt de senha
+  const [actionToPerform, setActionToPerform] = useState(null); // Armazena a ação a ser executada após a senha
 
   useEffect(() => {
     if (editingId) {
@@ -25,7 +28,7 @@ const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
   }, [editingId, curiosities]);
 
   useEffect(() => {
-    if (!editingId) { // Only update default revelation for new entries or when isTrue changes
+    if (!editingId) { 
         setFormData(prev => ({
             ...prev,
             revelation: prev.isTrue ? "Isso mesmo! " : "Na verdade... "
@@ -33,6 +36,13 @@ const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
     }
   }, [formData.isTrue, editingId]);
 
+  const handleAuthenticate = () => {
+    setShowPasswordPrompt(false);
+    if (actionToPerform) {
+      actionToPerform();
+      setActionToPerform(null);
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -45,36 +55,43 @@ const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
       return;
     }
 
-    if (editingId) {
-      onEdit(editingId, formData);
-      toast({
-        title: "Sucesso!",
-        description: "Curiosidade editada com sucesso!"
-      });
-      setEditingId(null);
-    } else {
-      onAdd(formData);
-      toast({
-        title: "Sucesso!",
-        description: "Nova curiosidade adicionada!"
-      });
-      setShowAddForm(false);
-    }
-    
-    setFormData({ text: '', isTrue: true, revelation: 'Isso mesmo! ' });
+    // Armazena a ação e exibe o prompt de senha
+    setActionToPerform(() => () => {
+      if (editingId) {
+        onEdit(editingId, formData);
+        toast({
+          title: "Sucesso!",
+          description: "Curiosidade editada com sucesso!"
+        });
+        setEditingId(null);
+      } else {
+        onAdd(formData);
+        toast({
+          title: "Sucesso!",
+          description: "Nova curiosidade adicionada!"
+        });
+        setShowAddForm(false);
+      }
+      setFormData({ text: '', isTrue: true, revelation: 'Isso mesmo! ' });
+    });
+    setShowPasswordPrompt(true);
   };
 
   const handleEdit = (curiosity) => {
     setEditingId(curiosity.id);
-    setShowAddForm(false); // Close add form if open
+    setShowAddForm(false); 
   };
 
   const handleDelete = (id) => {
-    onDelete(id);
-    toast({
-      title: "Removido",
-      description: "Curiosidade removida com sucesso!"
+    // Armazena a ação e exibe o prompt de senha
+    setActionToPerform(() => () => {
+      onDelete(id);
+      toast({
+        title: "Removido",
+        description: "Curiosidade removida com sucesso!"
+      });
     });
+    setShowPasswordPrompt(true);
   };
 
   const handleCancel = () => {
@@ -114,7 +131,7 @@ const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
               <Button
                 onClick={() => {
                   setShowAddForm(true);
-                  setFormData({ text: '', isTrue: true, revelation: 'Isso mesmo! ' }); // Reset form for new entry
+                  setFormData({ text: '', isTrue: true, revelation: 'Isso mesmo! ' }); 
                 }}
                 className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white"
               >
@@ -255,9 +272,17 @@ const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
             ))}
           </div>
         </div>
+
+        {showPasswordPrompt && (
+          <PasswordPrompt
+            onAuthenticate={handleAuthenticate}
+            onClose={() => setShowPasswordPrompt(false)}
+          />
+        )}
       </motion.div>
     </motion.div>
   );
 };
 
 export default AdminPanel;
+

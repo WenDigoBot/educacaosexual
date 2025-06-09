@@ -5,6 +5,7 @@ import CuriosityCard from '@/components/CuriosityCard';
 import AdminPanel from '@/components/AdminPanel';
 import ParticleSystem from '@/components/ParticleSystem';
 import WelcomePage from '@/components/WelcomePage';
+import PasswordPrompt from '@/components/PasswordPrompt'; // Importar o componente de senha
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/toaster';
 import { toast } from '@/components/ui/use-toast';
@@ -67,19 +68,19 @@ function App() {
   });
   
   const [currentIndex, setCurrentIndex] = useState(0);
-  // Iniciar a contagem em 1 em vez de 0
   const [viewedCount, setViewedCount] = useState(1);
   const [showAdmin, setShowAdmin] = useState(false);
   const [backgroundIndex, setBackgroundIndex] = useState(0);
   const [showFinalMessage, setShowFinalMessage] = useState(false);
-  const [direction, setDirection] = useState(1); // Direção da animação (1: para frente, -1: para trás)
+  const [direction, setDirection] = useState(1);
   const [isCardTransitioning, setIsCardTransitioning] = useState(false);
   
-  // Estados para controlar a transição entre cores
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [prevBackgroundIndex, setPrevBackgroundIndex] = useState(0);
   const [nextBackgroundIndex, setNextBackgroundIndex] = useState(0);
   const [transitionProgress, setTransitionProgress] = useState(0);
+
+  const [showDownloadPassword, setShowDownloadPassword] = useState(false); // Estado para a senha de download
 
   useEffect(() => {
     localStorage.setItem('healthCuriosities', JSON.stringify(curiosities));
@@ -91,10 +92,7 @@ function App() {
 
   const handleNext = () => {
     if (currentIndex < curiosities.length - 1) {
-      // Define a direção da animação para frente
       setDirection(1);
-      
-      // Iniciar a transição do cartão e cores simultaneamente
       setIsCardTransitioning(true);
       setIsTransitioning(true);
       
@@ -102,13 +100,10 @@ function App() {
       const nextIndex = (backgroundIndex + 1) % backgroundGradients.length;
       setNextBackgroundIndex(nextIndex);
       
-      // Atualizar o índice atual e a contagem imediatamente
       const newIndex = currentIndex + 1;
       setCurrentIndex(newIndex);
-      // Incrementar a contagem corretamente (começando em 1, não em 0)
       setViewedCount(newIndex + 1);
       
-      // Animar a transição de cores
       let progress = 0;
       const animationInterval = setInterval(() => {
         progress += 0.05;
@@ -117,15 +112,13 @@ function App() {
         if (progress >= 1) {
           clearInterval(animationInterval);
           setBackgroundIndex(nextIndex);
-          
-          // Finalizar a transição após completar
           setTimeout(() => {
             setIsTransitioning(false);
             setTransitionProgress(0);
             setIsCardTransitioning(false);
           }, 100);
         }
-      }, 20); // Atualiza a cada 20ms para uma animação suave
+      }, 20);
     } else {
       setShowFinalMessage(true);
     }
@@ -133,7 +126,6 @@ function App() {
 
   const handleReset = () => {
     setCurrentIndex(0);
-    // Resetar a contagem para 1 em vez de 0
     setViewedCount(1);
     setBackgroundIndex(0);
     setShowFinalMessage(false);
@@ -171,7 +163,15 @@ function App() {
     }
   };
 
-  // Função para gerar e baixar o arquivo JSON atualizado
+  const handleDownloadClick = () => {
+    setShowDownloadPassword(true);
+  };
+
+  const handleDownloadAuthenticate = () => {
+    downloadUpdatedFile();
+    setShowDownloadPassword(false);
+  };
+
   const downloadUpdatedFile = () => {
     try {
       const dataStr = JSON.stringify(curiosities, null, 2);
@@ -197,20 +197,16 @@ function App() {
     }
   };
 
-  // Função para interpolar cores durante a transição
   const interpolateColors = (colorA, colorB, factor) => {
-    // Converte cores hex para RGB
     const hexToRgb = (hex) => {
       const r = parseInt(hex.slice(1, 3), 16);
       const g = parseInt(hex.slice(3, 5), 16);
-      const b = parseInt(hex.slice(7), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
       return [r, g, b];
     };
     
-    // Interpola entre dois valores
     const lerp = (a, b, factor) => Math.round(a + (b - a) * factor);
     
-    // Converte RGB para hex
     const rgbToHex = (r, g, b) => `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
     
     const rgbA = hexToRgb(colorA);
@@ -223,7 +219,6 @@ function App() {
     return rgbToHex(r, g, b);
   };
 
-  // Calcula o gradiente atual baseado na transição
   const getCurrentGradient = () => {
     if (!isTransitioning) {
       return `linear-gradient(135deg, ${backgroundGradients[backgroundIndex][0]}, ${backgroundGradients[backgroundIndex][1]}, ${backgroundGradients[backgroundIndex][2]})`;
@@ -250,14 +245,12 @@ function App() {
     return `linear-gradient(135deg, ${color1}, ${color2}, ${color3})`;
   };
 
-  // Renderiza a página de boas-vindas se showWelcome for true
   if (showWelcome) {
     return <WelcomePage onStart={handleStart} />;
   }
 
   return (
     <div className="h-screen w-screen relative overflow-hidden">
-      {/* Fundo com gradiente animado */}
       <div 
         className="absolute inset-0 transition-all duration-500"
         style={{
@@ -290,7 +283,7 @@ function App() {
             </motion.div>
             
             <Button
-              onClick={downloadUpdatedFile}
+              onClick={handleDownloadClick} // Chama a função que exibe o prompt de senha
               variant="outline"
               size="icon"
               className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 w-8 h-8"
@@ -411,9 +404,17 @@ function App() {
       </div>
       
       <Toaster />
+
+      {showDownloadPassword && (
+        <PasswordPrompt
+          onAuthenticate={handleDownloadAuthenticate}
+          onClose={() => setShowDownloadPassword(false)}
+        />
+      )}
     </div>
   );
 }
 
 export default App;
+
 
