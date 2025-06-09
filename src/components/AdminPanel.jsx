@@ -27,14 +27,14 @@ const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
     }
   }, [editingId, curiosities]);
 
-  useEffect(() => {
-    if (!editingId) { 
-        setFormData(prev => ({
-            ...prev,
-            revelation: ''
-        }));
-    }
-  }, [formData.isTrue, editingId]);
+  // useEffect(() => {
+  //   if (!editingId) { 
+  //       setFormData(prev => ({
+  //           ...prev,
+  //           revelation: ''
+  //       }));
+  //   }
+  // }, [formData.isTrue, editingId]);
 
   const handleAuthenticate = () => {
     setShowPasswordPrompt(false);
