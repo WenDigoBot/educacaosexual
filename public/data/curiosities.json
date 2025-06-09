@@ -20,7 +20,7 @@
   {
     "id": 4,
     "text": "Pessoas que têm ISTs sempre apresentam sintomas.",
-    "isTrue": true,
+    "isTrue": false,
     "revelation": "Engano comum! Muitas ISTs não apresentam sinais visíveis e só são detectadas com exames. Por isso, é importante se testar regularmente."
   },
   {
