@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronRight, CheckCircle, XCircle } from 'lucide-react';
+import { ChevronRight, ChevronLeft, CheckCircle, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 // Arrays de emojis para cada posição
@@ -8,7 +8,7 @@ const hospitalEmojis = ['🏥', '💉', '💊', '🩺', '🧬', '👨‍⚕️',
 const curiosityEmojis = ['🤔', '🤓', '🧠', '💭', '🔍', '👀', '❓', '📚', '😐', '🧐'];
 const reactionEmojis = ['🫢', '🤨', '😲', '😳', '😶', '😮', '🤯', '😬', '😵', '😯'];
 
-const CuriosityCard = ({ curiosity, onNext, isLast }) => {
+const CuriosityCard = ({ curiosity, onNext, onPrevious, currentIndex, isLast, direction, cardVariants }) => {
   const [isFlipped, setIsFlipped] = useState(false);
   const [topEmoji, setTopEmoji] = useState('');
   const [bottomEmoji, setBottomEmoji] = useState('');
@@ -26,9 +26,7 @@ const CuriosityCard = ({ curiosity, onNext, isLast }) => {
     if (!isFlipped) {
       setIsFlipped(true);
     } else {
-      onNext();
-      // Não resetar isFlipped aqui, pois o componente será desmontado/remontado
-      // e o estado de flip será resetado pela key no App.jsx
+      onNext(); // This will trigger the parent to change curiosity, unmounting/remounting this card
     }
   };
   
@@ -38,19 +36,16 @@ const CuriosityCard = ({ curiosity, onNext, isLast }) => {
   return (
     <div className="w-full max-w-lg mx-auto px-2 sm:px-0">
       <motion.div
-        className="card-3d relative w-full h-[calc(100vh-180px)] max-h-[500px]" 
-        animate={{ 
-          y: [0, -10, 0],
-          rotate: [0, 0.5, 0, -0.5, 0]
-        }}
-        transition={{ 
-          y: { duration: 3, repeat: Infinity, ease: "easeInOut" },
-          rotate: { duration: 5, repeat: Infinity, ease: "easeInOut" }
-        }}
-        whileHover={{ 
-          rotateY: isFlipped ? 0 : 3, 
+        className="card-3d relative w-full h-[calc(100vh-180px)] max-h-[500px]"
+        variants={cardVariants}
+        initial="enter"
+        animate="center"
+        exit="exit"
+        custom={direction}
+        whileHover={{
+          rotateY: isFlipped ? 0 : 3,
           rotateX: isFlipped ? 0 : 3,
-          scale: 1.01 
+          scale: 1.01
         }}
       >
         <motion.div
@@ -154,11 +149,23 @@ const CuriosityCard = ({ curiosity, onNext, isLast }) => {
       </motion.div>
 
       <motion.div
-        className="flex justify-center mt-4"
+        className="flex justify-center items-center gap-2 mt-4"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
+        {currentIndex > 0 && (
+          <Button
+            onClick={onPrevious}
+            variant="outline"
+            size="icon"
+            className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 w-10 h-10 sm:w-12 sm:h-12"
+            whileTap={{ scale: 0.95 }}
+          >
+            <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+          </Button>
+        )}
+        
         <Button
           onClick={handleFlip}
           className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold px-6 sm:px-8 py-2 sm:py-3 text-base sm:text-lg rounded-full flex items-center gap-2 shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:scale-105 animate-pulse-glow"

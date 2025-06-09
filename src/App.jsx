@@ -28,12 +28,14 @@ const cardVariants = {
     return {
       x: direction > 0 ? 300 : -300,
       opacity: 0,
+      rotateY: direction > 0 ? 90 : -90,
       scale: 0.8
     };
   },
   center: {
     x: 0,
     opacity: 1,
+    rotateY: 0,
     scale: 1,
     transition: {
       duration: 0.5,
@@ -44,6 +46,7 @@ const cardVariants = {
     return {
       x: direction < 0 ? 300 : -300,
       opacity: 0,
+      rotateY: direction < 0 ? 90 : -90,
       scale: 0.8,
       transition: {
         duration: 0.5,
@@ -159,6 +162,38 @@ function App() {
       }, 20);
     } else {
       setShowFinalMessage(true);
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentIndex > 0) {
+      setDirection(-1);
+      setIsCardTransitioning(true);
+      setIsTransitioning(true);
+
+      setPrevBackgroundIndex(backgroundIndex);
+      const nextIndex = (backgroundIndex - 1 + backgroundGradients.length) % backgroundGradients.length;
+      setNextBackgroundIndex(nextIndex);
+
+      const newIndex = currentIndex - 1;
+      setCurrentIndex(newIndex);
+      setViewedCount(newIndex + 1);
+
+      let progress = 0;
+      const animationInterval = setInterval(() => {
+        progress += 0.05;
+        setTransitionProgress(progress);
+
+        if (progress >= 1) {
+          clearInterval(animationInterval);
+          setBackgroundIndex(nextIndex);
+          setTimeout(() => {
+            setIsTransitioning(false);
+            setTransitionProgress(0);
+            setIsCardTransitioning(false);
+          }, 100);
+        }
+      }, 20);
     }
   };
 
@@ -441,60 +476,52 @@ function App() {
                       </p>
                     </motion.div>
                   )}
-                  
+
                   <Button
                     onClick={handleReset}
-                    className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-semibold px-4 py-2 sm:px-6 sm:py-2 rounded-full animate-pulse-glow text-sm sm:text-base"
+                    className="bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white text-base sm:text-lg px-6 py-3 rounded-full shadow-lg"
                   >
-                    {curiosities.length === 0 ? "Adicionar Curiosidades" : "Recomeçar Jornada"}
+                    {curiosities.length === 0 ? "Ir para Admin" : "Recomeçar"}
                   </Button>
                 </motion.div>
               </motion.div>
             ) : (
-              <motion.div
-                key={currentIndex}
-                custom={direction}
-                variants={cardVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                className="w-full"
-              >
-                <CuriosityCard
-                  curiosity={curiosities[currentIndex]}
-                  onNext={handleNext}
-                  isLast={currentIndex === curiosities.length - 1}
-                />
-              </motion.div>
+              <CuriosityCard 
+                key={curiosities[currentIndex].id}
+                curiosity={curiosities[currentIndex]}
+                onNext={handleNext}
+                onPrevious={handlePrevious}
+                currentIndex={currentIndex}
+                isLast={currentIndex === curiosities.length - 1}
+                isCardTransitioning={isCardTransitioning}
+                direction={direction}
+                cardVariants={cardVariants}
+              />
             )}
           </AnimatePresence>
         </main>
 
-        <AnimatePresence>
-          {showAdmin && (
-            <AdminPanel
-              curiosities={curiosities}
-              onAdd={addCuriosity}
-              onEdit={editCuriosity}
-              onDelete={deleteCuriosity}
-              onClose={() => setShowAdmin(false)}
-            />
-          )}
-        </AnimatePresence>
-      </div>
-      
-      <Toaster />
+        {showAdmin && (
+          <AdminPanel
+            curiosities={curiosities}
+            onAdd={addCuriosity}
+            onEdit={editCuriosity}
+            onDelete={deleteCuriosity}
+            onClose={() => setShowAdmin(false)}
+          />
+        )}
 
-      {showDownloadPassword && (
-        <PasswordPrompt
-          onAuthenticate={handleDownloadAuthenticate}
-          onClose={() => setShowDownloadPassword(false)}
-        />
-      )}
+        {showDownloadPassword && (
+          <PasswordPrompt
+            onAuthenticate={handleDownloadAuthenticate}
+            onClose={() => setShowDownloadPassword(false)}
+          />
+        )}
+      </div>
+      <Toaster />
     </div>
   );
 }
 
 export default App;
-
 
