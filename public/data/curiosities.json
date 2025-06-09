@@ -1,9 +1,9 @@
 [
   {
     "id": 1,
-    "text": "O preservativo masculino tem 98% de eficácia quando usado corretamente.",
-    "isTrue": true,
-    "revelation": "Isso mesmo! Quando usado de forma consistente e correta, o preservativo é altamente eficaz na prevenção da gravidez e ISTs."
+    "text": "Usar duas camisinhas ao mesmo tempo protege mais.",
+    "isTrue": false,
+    "revelation": "Cuidado com essa ideia! Usar duas camisinhas ao mesmo tempo aumenta o atrito entre elas e pode causar rompimentos, diminuindo a proteção."
   },
   {
     "id": 2,
