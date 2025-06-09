@@ -69,8 +69,8 @@ exports.handler = async (event, context) => {
       auth: githubToken,
     });
 
-    // Caminho do arquivo no repositório
-    const filePath = "src/data/curiosities.json";
+    // Caminho do arquivo no repositório - CORRIGIDO para public/data
+    const filePath = "public/data/curiosities.json";
 
     // Obter o SHA do arquivo atual (necessário para atualizar)
     let currentSha;
