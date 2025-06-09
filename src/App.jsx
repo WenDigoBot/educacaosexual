@@ -10,8 +10,8 @@ import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/toaster';
 import { toast } from '@/components/ui/use-toast';
 
-// Importar as curiosidades do arquivo JSON
-import initialCuriositiesData from '@/data/curiosities.json';
+// Não importar mais as curiosidades diretamente, vamos buscá-las via fetch
+// import initialCuriositiesData from '@/data/curiosities.json';
 
 const backgroundGradients = [
   ['#4c1d95', '#1e3a8a', '#312e81'], 
@@ -55,35 +55,60 @@ const cardVariants = {
 
 function App() {
   const [showWelcome, setShowWelcome] = useState(true);
-  const [curiosities, setCuriosities] = useState(() => {
-    const saved = localStorage.getItem('healthCuriosities');
-    if (saved) {
-      const parsedCuriosities = JSON.parse(saved);
-      return parsedCuriosities.map(c => ({
-        ...initialCuriositiesData.find(ic => ic.id === c.id) || { revelation: c.isTrue ? "Isso mesmo!" : "Na verdade..." }, 
-        ...c 
-      }));
-    }
-    return initialCuriositiesData;
-  });
-  
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [viewedCount, setViewedCount] = useState(1);
-  const [showAdmin, setShowAdmin] = useState(false);
-  const [backgroundIndex, setBackgroundIndex] = useState(0);
-  const [showFinalMessage, setShowFinalMessage] = useState(false);
-  const [direction, setDirection] = useState(1);
-  const [isCardTransitioning, setIsCardTransitioning] = useState(false);
-  
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const [prevBackgroundIndex, setPrevBackgroundIndex] = useState(0);
-  const [nextBackgroundIndex, setNextBackgroundIndex] = useState(0);
-  const [transitionProgress, setTransitionProgress] = useState(0);
-
-  const [showDownloadPassword, setShowDownloadPassword] = useState(false); // Estado para a senha de download
+  const [curiosities, setCuriosities] = useState([]);
+  const [isLoadingCuriosities, setIsLoadingCuriosities] = useState(true);
 
   useEffect(() => {
-    localStorage.setItem('healthCuriosities', JSON.stringify(curiosities));
+    const fetchCuriosities = async () => {
+      try {
+        // Adiciona um timestamp para cache-busting
+        const response = await fetch(`/data/curiosities.json?v=${Date.now()}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const fetchedCuriosities = await response.json();
+
+        // Tenta carregar do localStorage e mesclar
+        const saved = localStorage.getItem("healthCuriosities");
+        if (saved) {
+          const parsedSavedCuriosities = JSON.parse(saved);
+          // Mescla as curiosidades do GitHub com as do localStorage
+          // Prioriza as do localStorage se houver conflito de ID, ou adiciona novas
+          const mergedCuriosities = fetchedCuriosities.map(fc => {
+            const savedC = parsedSavedCuriosities.find(psc => psc.id === fc.id);
+            return savedC ? { ...fc, ...savedC } : fc;
+          });
+          // Adiciona curiosidades que só existem no localStorage
+          const newFromLocalStorage = parsedSavedCuriosities.filter(psc => 
+            !fetchedCuriosities.some(fc => fc.id === psc.id)
+          );
+          setCuriosities([...mergedCuriosities, ...newFromLocalStorage]);
+        } else {
+          setCuriosities(fetchedCuriosities);
+        }
+      } catch (error) {
+        console.error("Erro ao carregar curiosidades:", error);
+        toast({
+          title: "Erro ao Carregar Curiosidades",
+          description: "Não foi possível carregar as curiosidades. Verifique sua conexão ou tente novamente.",
+          variant: "destructive"
+        });
+        // Fallback para localStorage se a busca falhar
+        const saved = localStorage.getItem("healthCuriosities");
+        if (saved) {
+          setCuriosities(JSON.parse(saved));
+        }
+      } finally {
+        setIsLoadingCuriosities(false);
+      }
+    };
+
+    fetchCuriosities();
+  }, []); // Executa apenas uma vez ao montar o componente
+
+  useEffect(() => {
+    // Salva no localStorage sempre que as curiosidades mudam
+    localStorage.setItem("healthCuriosities", JSON.stringify(curiosities));
   }, [curiosities]);
 
   const handleStart = () => {
@@ -281,6 +306,14 @@ function App() {
 
   if (showWelcome) {
     return <WelcomePage onStart={handleStart} />;
+  }
+
+  if (isLoadingCuriosities) {
+    return (
+      <div className="h-screen w-screen flex items-center justify-center bg-gradient-to-br from-purple-800 via-blue-800 to-indigo-900 text-white text-2xl font-bold">
+        Carregando Curiosidades...
+      </div>
+    );
   }
 
   return (
