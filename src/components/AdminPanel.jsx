@@ -354,4 +354,8 @@ const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
   );
 };
 
+<<<<<<< HEAD
 export default AdminPanel;
+=======
+export default AdminPanel;
+>>>>>>> f6cfa4598e2cba87874c0b1d99ac675b6cb49367
