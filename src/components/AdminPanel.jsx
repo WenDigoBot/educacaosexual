@@ -163,9 +163,8 @@ const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
     });
     setShowPasswordPrompt(true);
   };
-
-  const handleCancel = () =>     setFormData({ text: 
-'\', isTrue: true, revelation: '' });
+  const handleCancel = () => {
+    setFormData({ text: '', isTrue: true, revelation: '' });
     setEditingId(null);
     setShowAddForm(false);
   };
@@ -201,8 +200,7 @@ const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
               <Button
                 onClick={() => {
                   setShowAddForm(true);                  setFormData({ text: 
-'', isTrue: true, revelation: '' }); 
-                }}
+'', isTrue: true, revelation: '' });                 }}
                 className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white"
               >
                 <Plus className="w-4 h-4 mr-2" />
