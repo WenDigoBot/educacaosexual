@@ -57,6 +57,19 @@ function App() {
   const [showWelcome, setShowWelcome] = useState(true);
   const [curiosities, setCuriosities] = useState([]);
   const [isLoadingCuriosities, setIsLoadingCuriosities] = useState(true);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [viewedCount, setViewedCount] = useState(1);
+  const [backgroundIndex, setBackgroundIndex] = useState(0);
+  const [showFinalMessage, setShowFinalMessage] = useState(false);
+  const [showAdmin, setShowAdmin] = useState(false);
+  const [direction, setDirection] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [transitionProgress, setTransitionProgress] = useState(0);
+  const [prevBackgroundIndex, setPrevBackgroundIndex] = useState(0);
+  const [nextBackgroundIndex, setNextBackgroundIndex] = useState(0);
+  const [isCardTransitioning, setIsCardTransitioning] = useState(false);
+  const [showDownloadPassword, setShowDownloadPassword] = useState(false);
+  const [showAdminPassword, setShowAdminPassword] = useState(false);
 
   useEffect(() => {
     const fetchCuriosities = async () => {
