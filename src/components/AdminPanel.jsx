@@ -168,14 +168,7 @@ const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
     setFormData({ text: '', isTrue: true, revelation: '' });
     setEditingId(null);
     setShowAddForm(false);
-  };
-
-  return (
-    <motion.div
-      className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+  };  exit={{ opacity: 0 }}
     >
       <motion.div
         className="bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
@@ -354,8 +347,5 @@ const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
   );
 };
 
-<<<<<<< HEAD
 export default AdminPanel;
-=======
-export default AdminPanel;
->>>>>>> f6cfa4598e2cba87874c0b1d99ac675b6cb49367
+
