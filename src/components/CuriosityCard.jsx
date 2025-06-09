@@ -155,25 +155,41 @@ const CuriosityCard = ({ curiosity, onNext, onPrevious, currentIndex, isLast, di
         transition={{ delay: 0.2 }}
       >
         {currentIndex > 0 && (
-          <Button
-            onClick={onPrevious}
-            variant="outline"
-            size="icon"
-            className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 w-10 h-10 sm:w-12 sm:h-12 transition-all duration-300 ease-in-out transform hover:scale-105 animate-pulse-glow"
-            whileTap={{ scale: 0.95 }}
+          <motion.div
+            variants={cardVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            custom={direction}
           >
-            <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
-          </Button>
+            <Button
+              onClick={onPrevious}
+              variant="outline"
+              size="icon"
+              className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 w-10 h-10 sm:w-12 sm:h-12"
+              whileTap={{ scale: 0.95 }}
+            >
+              <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+            </Button>
+          </motion.div>
         )}
         
-        <Button
-          onClick={handleFlip}
-          className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold px-6 sm:px-8 py-2 sm:py-3 text-base sm:text-lg rounded-full flex items-center gap-2 shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:scale-105 animate-pulse-glow"
-          whileTap={{ scale: 0.95 }}
+        <motion.div
+          variants={cardVariants}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          custom={direction}
         >
-          {!isFlipped ? 'Revelar' : (isLast ? 'Finalizar' : 'Próxima')}
-          <ChevronRight className="w-5 h-5" />
-        </Button>
+          <Button
+            onClick={handleFlip}
+            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold px-6 sm:px-8 py-2 sm:py-3 text-base sm:text-lg rounded-full flex items-center gap-2 shadow-lg hover:shadow-xl"
+            whileTap={{ scale: 0.95 }}
+          >
+            {!isFlipped ? 'Revelar' : (isLast ? 'Finalizar' : 'Próxima')}
+            <ChevronRight className="w-5 h-5" />
+          </Button>
+        </motion.div>
       </motion.div>
     </div>
   );
