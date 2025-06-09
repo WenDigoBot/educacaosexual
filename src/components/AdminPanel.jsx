@@ -240,7 +240,7 @@ const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
                       onChange={(e) => setFormData({ ...formData, revelation: e.target.value })}
                       className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 resize-none focus:ring-2 focus:ring-blue-500 outline-none"
                       rows="4"
-                      placeholder=""
+                      placeholder="Ex: Na verdade, usar dois preservativos pode causar atrito e aumentar o risco de rompimento."
                     />
                   </div>
                   
@@ -355,4 +355,3 @@ const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
 };
 
 export default AdminPanel;
-
