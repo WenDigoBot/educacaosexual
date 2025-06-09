@@ -1,29 +1,21 @@
 const admin = require("firebase-admin");
 
-// Inicializar Firebase Admin SDK
-if (!admin.apps.length) {
-  const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
-  console.log("Firebase Private Key (processed):"); // Log para depuração
-  console.log(privateKey ? privateKey.substring(0, 50) + "..." : "Not found");
+// Decodifica a chave privada Base64
+// Garante que a chave privada seja interpretada corretamente com as quebras de linha
+const privateKey = process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n");
 
+if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert({
       projectId: process.env.FIREBASE_PROJECT_ID,
-      privateKeyId: process.env.FIREBASE_PRIVATE_KEY_ID,
-      privateKey: privateKey,
       clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      clientId: process.env.FIREBASE_CLIENT_ID,
-      authUri: "https://accounts.google.com/o/oauth2/auth",
-      tokenUri: "https://oauth2.googleapis.com/token",
-      authProviderX509CertUrl: "https://www.googleapis.com/oauth2/v1/certs",
-      clientX509CertUrl: process.env.FIREBASE_CLIENT_X509_CERT_URL
-    })
+      privateKey: privateKey,
+    }),
   });
 }
 
 const db = admin.firestore();
 const COLLECTION_NAME = "curiosities";
-// const ADMIN_PASSWORD = "6453"; // Removido
 
 exports.handler = async (event, context) => {
   // Configurar CORS
@@ -34,7 +26,7 @@ exports.handler = async (event, context) => {
   };
 
   // Responder a requisições OPTIONS (preflight)
-  if (event.httpMethod === "OPTIONS") {
+  if (event.httpMethod === "OPTIONS" ) {
     return {
       statusCode: 200,
       headers,
@@ -46,7 +38,7 @@ exports.handler = async (event, context) => {
     const method = event.httpMethod;
     const path = event.path;
 
-    switch (method) {
+    switch (method ) {
       case "GET":
         // Buscar todas as curiosidades
         const snapshot = await db.collection(COLLECTION_NAME).orderBy("createdAt", "asc").get();
@@ -67,19 +59,7 @@ exports.handler = async (event, context) => {
       case "POST":
         // Adicionar nova curiosidade
         const newData = JSON.parse(event.body);
-        
-        // // Verificar senha - REMOVIDO
-        // if (newData.password !== ADMIN_PASSWORD) {
-        //   return {
-        //     statusCode: 401,
-        //     headers,
-        //     body: JSON.stringify({ error: "Senha incorreta" })
-        //   };
-        // }
-
-        // // Remover a senha dos dados antes de salvar - REMOVIDO
-        // const { password, ...curiosityData } = newData;
-        const curiosityData = newData; // Usar todos os dados recebidos
+        const curiosityData = newData; 
         
         // Adicionar timestamp
         curiosityData.createdAt = admin.firestore.FieldValue.serverTimestamp();
@@ -110,18 +90,7 @@ exports.handler = async (event, context) => {
           };
         }
 
-        // // Verificar senha - REMOVIDO
-        // if (updateData.password !== ADMIN_PASSWORD) {
-        //   return {
-        //     statusCode: 401,
-        //     headers,
-        //     body: JSON.stringify({ error: "Senha incorreta" })
-        //   };
-        // }
-
-        // // Remover a senha dos dados antes de salvar - REMOVIDO
-        // const { password: updatePassword, ...updateCuriosityData } = updateData;
-        const updateCuriosityData = updateData; // Usar todos os dados recebidos
+        const updateCuriosityData = updateData; 
         
         // Adicionar timestamp de atualização
         updateCuriosityData.updatedAt = admin.firestore.FieldValue.serverTimestamp();
@@ -141,7 +110,6 @@ exports.handler = async (event, context) => {
       case "DELETE":
         // Deletar curiosidade
         const deleteId = event.queryStringParameters?.id;
-        // const deletePassword = event.queryStringParameters?.password; // REMOVIDO
 
         if (!deleteId) {
           return {
@@ -150,15 +118,6 @@ exports.handler = async (event, context) => {
             body: JSON.stringify({ error: "ID da curiosidade é obrigatório" })
           };
         }
-
-        // // Verificar senha - REMOVIDO
-        // if (deletePassword !== ADMIN_PASSWORD) {
-        //   return {
-        //     statusCode: 401,
-        //     headers,
-        //     body: JSON.stringify({ error: "Senha incorreta" })
-        //   };
-        // }
 
         await db.collection(COLLECTION_NAME).doc(deleteId).delete();
         
@@ -188,5 +147,3 @@ exports.handler = async (event, context) => {
     };
   }
 };
-
-
