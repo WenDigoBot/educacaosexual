@@ -19,11 +19,11 @@ const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
         setFormData({ 
           text: currentCuriosity.text, 
           isTrue: currentCuriosity.isTrue,
-          revelation: currentCuriosity.revelation || (currentCuriosity.isTrue ? "Isso mesmo! " : "Na verdade... ")
+          revelation: currentCuriosity.revelation || ''
         });
       }
     } else {
-      setFormData(prev => ({ ...prev, revelation: prev.isTrue ? "Isso mesmo! " : "Na verdade... " }));
+      setFormData(prev => ({ ...prev, revelation: '' }));
     }
   }, [editingId, curiosities]);
 
@@ -31,7 +31,7 @@ const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
     if (!editingId) { 
         setFormData(prev => ({
             ...prev,
-            revelation: prev.isTrue ? "Isso mesmo! " : "Na verdade... "
+            revelation: ''
         }));
     }
   }, [formData.isTrue, editingId]);
@@ -95,8 +95,8 @@ const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
 
         if (response.ok) {
           toast({
-            title: "Parabéns 🥳",
-            description: "As alterações foram feitas! A atualização deve estar pronta em até 3 minutos.",
+            title: "GitHub Atualizado!",
+            description: "As alterações foram enviadas para o GitHub automaticamente.",
           });
         } else {
           throw new Error(result.error || 'Erro desconhecido');
