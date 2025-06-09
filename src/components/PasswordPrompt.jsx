@@ -5,7 +5,7 @@ import { toast } from '@/components/ui/use-toast';
 
 const PasswordPrompt = ({ onAuthenticate, onClose }) => {
   const [password, setPassword] = useState('');
-  const correctPassword = "admin123"; // Senha definida
+  const correctPassword = "5278"; // Senha definida
 
   const handleSubmit = (e) => {
     e.preventDefault();

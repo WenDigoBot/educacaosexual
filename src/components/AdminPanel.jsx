@@ -95,8 +95,8 @@ const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
 
         if (response.ok) {
           toast({
-            title: "GitHub Atualizado!",
-            description: "As alterações foram enviadas para o GitHub automaticamente.",
+            title: "Parabéns 🥳",
+            description: "As alterações foram feitas! A atualização deve estar pronta em até 3 minutos.",
           });
         } else {
           throw new Error(result.error || 'Erro desconhecido');
