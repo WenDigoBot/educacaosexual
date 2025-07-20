@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronRight, ChevronLeft, CheckCircle, XCircle } from 'lucide-react';
+import { ChevronRight, ChevronLeft, CheckCircle, XCircle, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 // Arrays de emojis para cada posição
@@ -8,8 +8,10 @@ const hospitalEmojis = ['🏥', '💉', '💊', '🩺', '🧬', '👨‍⚕️',
 const curiosityEmojis = ['🤔', '🤓', '🧠', '💭', '🔍', '👀', '❓', '📚', '😐', '🧐'];
 const reactionEmojis = ['🫢', '🤨', '😲', '😳', '😶', '😮', '🤯', '😬', '😵', '😯'];
 
-const CuriosityCard = ({ curiosity, onNext, onPrevious, currentIndex, isLast, direction, cardVariants }) => {
+const CuriosityCard = ({ curiosity, onNext, onPrevious, currentIndex, isLast, direction, cardVariants, onAnswer }) => {
   const [isFlipped, setIsFlipped] = useState(false);
+  const [userAnswer, setUserAnswer] = useState(null);
+  const [showResult, setShowResult] = useState(false);
   const [topEmoji, setTopEmoji] = useState('');
   const [bottomEmoji, setBottomEmoji] = useState('');
   const [reactionEmoji, setReactionEmoji] = useState('');
@@ -20,7 +22,27 @@ const CuriosityCard = ({ curiosity, onNext, onPrevious, currentIndex, isLast, di
     setBottomEmoji(curiosityEmojis[Math.floor(Math.random() * curiosityEmojis.length)]);
     setReactionEmoji(reactionEmojis[Math.floor(Math.random() * reactionEmojis.length)]);
     setIsFlipped(false); // Resetar o estado de flip quando a curiosidade muda
+    setUserAnswer(null); // Resetar resposta do usuário
+    setShowResult(false); // Resetar resultado
   }, [curiosity]);
+
+  const handleAnswer = (answer) => {
+    setUserAnswer(answer);
+    setShowResult(true);
+    
+    // Verificar se a resposta está correta
+    const isCorrect = answer === curiosity?.isTrue;
+    
+    // Chamar callback para atualizar pontuação
+    if (onAnswer) {
+      onAnswer(isCorrect);
+    }
+    
+    // Após 2 segundos, mostrar a revelação
+    setTimeout(() => {
+      setIsFlipped(true);
+    }, 2000);
+  };
 
   const handleFlip = () => {
     if (!isFlipped) {
@@ -84,9 +106,47 @@ const CuriosityCard = ({ curiosity, onNext, onPrevious, currentIndex, isLast, di
               >
                 {bottomEmoji}
               </motion.div>
-              <p className="text-xs sm:text-sm text-white/70" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.4)' }}>
-                Clique em "Revelar" para descobrir!
-              </p>
+              
+              {!showResult ? (
+                <div className="space-y-3">
+                  <p className="text-xs sm:text-sm text-white/70" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.4)' }}>
+                    Esta afirmação é verdadeira ou falsa?
+                  </p>
+                  <div className="flex gap-3 justify-center">
+                    <Button
+                      onClick={() => handleAnswer(true)}
+                      className="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg"
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <ThumbsUp className="w-4 h-4" />
+                      Verdadeiro
+                    </Button>
+                    <Button
+                      onClick={() => handleAnswer(false)}
+                      className="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg"
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <ThumbsDown className="w-4 h-4" />
+                      Falso
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className={`text-lg font-bold ${
+                      (userAnswer === curiosity?.isTrue) ? 'text-green-400' : 'text-red-400'
+                    }`}
+                  >
+                    {(userAnswer === curiosity?.isTrue) ? '✅ Certo!' : '❌ Errado!'}
+                  </motion.div>
+                  <p className="text-xs sm:text-sm text-white/70" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.4)' }}>
+                    Aguarde a revelação...
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 
@@ -183,10 +243,11 @@ const CuriosityCard = ({ curiosity, onNext, onPrevious, currentIndex, isLast, di
         >
           <Button
             onClick={handleFlip}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold px-6 sm:px-8 py-2 sm:py-3 text-base sm:text-lg rounded-full flex items-center gap-2 shadow-lg hover:shadow-xl"
+            disabled={!isFlipped}
+            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-500 disabled:to-gray-600 text-white font-bold px-6 sm:px-8 py-2 sm:py-3 text-base sm:text-lg rounded-full flex items-center gap-2 shadow-lg hover:shadow-xl disabled:opacity-50"
             whileTap={{ scale: 0.95 }}
           >
-            {!isFlipped ? 'Revelar' : (isLast ? 'Finalizar' : 'Próxima')}
+            {!isFlipped ? 'Aguarde...' : (isLast ? 'Finalizar' : 'Próxima')}
             <ChevronRight className="w-5 h-5" />
           </Button>
         </motion.div>

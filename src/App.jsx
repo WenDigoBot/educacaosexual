@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Settings, Heart, Shield, Brain, Download } from 'lucide-react';
+import { Settings, Heart, Shield, Brain, Download, Trophy } from 'lucide-react';
 import CuriosityCard from '@/components/CuriosityCard';
 import AdminPanel from '@/components/AdminPanel';
 import ParticleSystem from '@/components/ParticleSystem';
 import WelcomePage from '@/components/WelcomePage';
+import NicknamePrompt from '@/components/NicknamePrompt';
+import Ranking from '@/components/Ranking';
 import PasswordPrompt from '@/components/PasswordPrompt'; // Importar o componente de senha
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/toaster';
@@ -58,6 +60,12 @@ const cardVariants = {
 
 function App() {
   const [showWelcome, setShowWelcome] = useState(true);
+  const [showNickname, setShowNickname] = useState(false);
+  const [playerNickname, setPlayerNickname] = useState('');
+  const [score, setScore] = useState(0);
+  const [totalQuestions, setTotalQuestions] = useState(0);
+  const [showRanking, setShowRanking] = useState(false);
+  const [rankings, setRankings] = useState([]);
   const [curiosities, setCuriosities] = useState([]);
   const [isLoadingCuriosities, setIsLoadingCuriosities] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -73,6 +81,14 @@ function App() {
   const [isCardTransitioning, setIsCardTransitioning] = useState(false);
   const [showDownloadPassword, setShowDownloadPassword] = useState(false);
   const [showAdminPassword, setShowAdminPassword] = useState(false);
+
+  useEffect(() => {
+    // Carregar rankings do localStorage
+    const savedRankings = localStorage.getItem("healthQuizRankings");
+    if (savedRankings) {
+      setRankings(JSON.parse(savedRankings));
+    }
+  }, []);
 
   useEffect(() => {
     const fetchCuriosities = async () => {
@@ -129,6 +145,21 @@ function App() {
 
   const handleStart = () => {
     setShowWelcome(false);
+    setShowNickname(true);
+  };
+
+  const handleNicknameSubmit = (nickname) => {
+    setPlayerNickname(nickname);
+    setShowNickname(false);
+    setScore(0);
+    setTotalQuestions(0);
+  };
+
+  const handleAnswer = (isCorrect) => {
+    setTotalQuestions(prev => prev + 1);
+    if (isCorrect) {
+      setScore(prev => prev + 1);
+    }
   };
 
   const handleNext = () => {
@@ -161,6 +192,26 @@ function App() {
         }
       }, 20);
     } else {
+      // Finalizar quiz e salvar no ranking
+      const finalScore = {
+        nickname: playerNickname,
+        score: score,
+        total: totalQuestions,
+        timestamp: Date.now(),
+        date: new Date().toLocaleDateString('pt-BR')
+      };
+      
+      const newRankings = [...rankings, finalScore]
+        .sort((a, b) => {
+          // Ordenar por pontuação (maior primeiro), depois por porcentagem
+          if (b.score !== a.score) return b.score - a.score;
+          return (b.score / b.total) - (a.score / a.total);
+        })
+        .slice(0, 10); // Manter apenas top 10
+      
+      setRankings(newRankings);
+      localStorage.setItem("healthQuizRankings", JSON.stringify(newRankings));
+      
       setShowFinalMessage(true);
     }
   };
@@ -202,6 +253,9 @@ function App() {
     setViewedCount(1);
     setBackgroundIndex(0);
     setShowFinalMessage(false);
+    setScore(0);
+    setTotalQuestions(0);
+    setShowNickname(true);
     if (curiosities.length === 0) {
       setShowAdmin(true);
     }
@@ -356,6 +410,10 @@ function App() {
     return <WelcomePage onStart={handleStart} />;
   }
 
+  if (showNickname) {
+    return <NicknamePrompt onStart={handleNicknameSubmit} />;
+  }
+
   if (isLoadingCuriosities) {
     return (
       <div className="h-screen w-screen flex items-center justify-center bg-gradient-to-br from-purple-800 via-blue-800 to-indigo-900 text-white text-2xl font-bold">
@@ -393,9 +451,19 @@ function App() {
               whileHover={{ scale: 1.05 }}
             >
               <span className="text-xs sm:text-sm text-white font-medium" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
-                Curiosidades vistas: {viewedCount}
+                {playerNickname}: {score}/{totalQuestions}
               </span>
             </motion.div>
+            
+            <Button
+              onClick={() => setShowRanking(true)}
+              variant="outline"
+              size="icon"
+              className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 w-8 h-8"
+              title="Ver ranking"
+            >
+              <Trophy className="w-4 h-4" />
+            </Button>
             
             <Button
               onClick={handleDownloadClick} // Chama a função que exibe o prompt de senha
@@ -491,6 +559,7 @@ function App() {
                 curiosity={curiosities[currentIndex]}
                 onNext={handleNext}
                 onPrevious={handlePrevious}
+                onAnswer={handleAnswer}
                 currentIndex={currentIndex}
                 isLast={currentIndex === curiosities.length - 1}
                 isCardTransitioning={isCardTransitioning}
@@ -515,6 +584,15 @@ function App() {
           <PasswordPrompt
             onAuthenticate={handleDownloadAuthenticate}
             onClose={() => setShowDownloadPassword(false)}
+          />
+        )}
+
+        {showRanking && (
+          <Ranking
+            rankings={rankings}
+            currentPlayer={{ nickname: playerNickname, score: score, total: totalQuestions }}
+            onClose={() => setShowRanking(false)}
+            onRestart={handleReset}
           />
         )}
       </div>
