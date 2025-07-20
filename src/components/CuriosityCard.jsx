@@ -8,7 +8,7 @@ const hospitalEmojis = ['🏥', '💉', '💊', '🩺', '🧬', '👨‍⚕️',
 const curiosityEmojis = ['🤔', '🤓', '🧠', '💭', '🔍', '👀', '❓', '📚', '😐', '🧐'];
 const reactionEmojis = ['🫢', '🤨', '😲', '😳', '😶', '😮', '🤯', '😬', '😵', '😯'];
 
-const CuriosityCard = ({ curiosity, onNext, onPrevious, currentIndex, isLast, direction, cardVariants, onAnswer }) => {
+const CuriosityCard = ({ curiosity, onNext, onPrevious, currentIndex, isLast, direction, cardVariants, onAnswer, isAnswered = false }) => {
   const [isFlipped, setIsFlipped] = useState(false);
   const [userAnswer, setUserAnswer] = useState(null);
   const [showResult, setShowResult] = useState(false);
@@ -21,24 +21,35 @@ const CuriosityCard = ({ curiosity, onNext, onPrevious, currentIndex, isLast, di
     setTopEmoji(hospitalEmojis[Math.floor(Math.random() * hospitalEmojis.length)]);
     setBottomEmoji(curiosityEmojis[Math.floor(Math.random() * curiosityEmojis.length)]);
     setReactionEmoji(reactionEmojis[Math.floor(Math.random() * reactionEmojis.length)]);
-    setIsFlipped(false); // Resetar o estado de flip quando a curiosidade muda
-    setUserAnswer(null); // Resetar resposta do usuário
-    setShowResult(false); // Resetar resultado
-  }, [curiosity]);
+    
+    // Resetar estados quando a curiosidade muda
+    setIsFlipped(false);
+    setUserAnswer(null);
+    setShowResult(false);
+    
+    // Se a questão já foi respondida, mostrar o resultado
+    if (isAnswered) {
+      setShowResult(true);
+      setUserAnswer('answered'); // Marcar como respondida
+    }
+  }, [curiosity.id, isAnswered]);
 
   const handleAnswer = (answer) => {
+    // Não permitir resposta se a questão já foi respondida
+    if (isAnswered || userAnswer !== null) {
+      return;
+    }
+    
     setUserAnswer(answer);
     setShowResult(true);
     
     // Verificar se a resposta está correta
-    const isCorrect = answer === curiosity?.isTrue;
+    const isCorrect = answer === curiosity.isTrue;
     
     // Chamar callback para atualizar pontuação
-    if (onAnswer) {
-      onAnswer(isCorrect);
-    }
+    onAnswer(isCorrect);
     
-    // Após 2 segundos, mostrar a revelação
+    // Aguardar 2 segundos antes de permitir avançar
     setTimeout(() => {
       setIsFlipped(true);
     }, 2000);
@@ -115,16 +126,26 @@ const CuriosityCard = ({ curiosity, onNext, onPrevious, currentIndex, isLast, di
                   <div className="flex gap-3 justify-center">
                     <Button
                       onClick={() => handleAnswer(true)}
-                      className="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg"
-                      whileTap={{ scale: 0.95 }}
+                      disabled={isAnswered || userAnswer !== null}
+                      className={`font-bold px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg ${
+                        isAnswered || userAnswer !== null 
+                          ? 'bg-gray-500 cursor-not-allowed opacity-50' 
+                          : 'bg-green-600 hover:bg-green-700'
+                      } text-white`}
+                      whileTap={isAnswered || userAnswer !== null ? {} : { scale: 0.95 }}
                     >
                       <ThumbsUp className="w-4 h-4" />
                       Verdadeiro
                     </Button>
                     <Button
                       onClick={() => handleAnswer(false)}
-                      className="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg"
-                      whileTap={{ scale: 0.95 }}
+                      disabled={isAnswered || userAnswer !== null}
+                      className={`font-bold px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg ${
+                        isAnswered || userAnswer !== null 
+                          ? 'bg-gray-500 cursor-not-allowed opacity-50' 
+                          : 'bg-red-600 hover:bg-red-700'
+                      } text-white`}
+                      whileTap={isAnswered || userAnswer !== null ? {} : { scale: 0.95 }}
                     >
                       <ThumbsDown className="w-4 h-4" />
                       Falso

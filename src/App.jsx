@@ -68,6 +68,7 @@ function App() {
   const [showRanking, setShowRanking] = useState(false);
   const [showPodium, setShowPodium] = useState(false);
   const [rankings, setRankings] = useState([]);
+  const [answeredQuestions, setAnsweredQuestions] = useState(new Set());
   const [curiosities, setCuriosities] = useState([]);
   const [isLoadingCuriosities, setIsLoadingCuriosities] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -153,6 +154,9 @@ function App() {
   };
 
   const handleAnswer = (isCorrect) => {
+    // Adicionar a questão atual ao conjunto de questões respondidas
+    setAnsweredQuestions(prev => new Set([...prev, currentIndex]));
+    
     setTotalQuestions(prev => prev + 1);
     if (isCorrect) {
       setScore(prev => prev + 1);
@@ -207,7 +211,22 @@ function App() {
         .slice(0, 10); // Manter apenas top 10
       
       setRankings(newRankings);
-      localStorage.setItem("healthQuizRankings", JSON.stringify(newRankings));
+      
+      // Salvar rankings no arquivo curiosities.json
+      try {
+        const dataToSave = {
+          curiosities: curiosities,
+          rankings: newRankings
+        };
+        
+        // Simular salvamento no arquivo (em produção seria uma API)
+        localStorage.setItem("healthQuizRankings", JSON.stringify(newRankings));
+        localStorage.setItem("healthCuriositiesData", JSON.stringify(dataToSave));
+        
+        console.log("Rankings salvos:", newRankings);
+      } catch (error) {
+        console.error("Erro ao salvar rankings:", error);
+      }
       
       // Mostrar pódio se houver rankings, senão mostrar mensagem final
       if (newRankings.length > 0) {
@@ -258,6 +277,7 @@ function App() {
     setShowPodium(false);
     setScore(0);
     setTotalQuestions(0);
+    setAnsweredQuestions(new Set()); // Limpar questões respondidas
     setShowNickname(true);
     if (curiosities.length === 0) {
       setShowAdmin(true);
@@ -584,6 +604,7 @@ function App() {
                 isCardTransitioning={isCardTransitioning}
                 direction={direction}
                 cardVariants={cardVariants}
+                isAnswered={answeredQuestions.has(currentIndex)}
               />
             )}
           </AnimatePresence>
