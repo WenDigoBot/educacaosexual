@@ -623,6 +623,7 @@ function App() {
         {showAdmin && (
           <AdminPanel
             curiosities={curiosities}
+            rankings={rankings}
             onAdd={addCuriosity}
             onEdit={editCuriosity}
             onDelete={deleteCuriosity}

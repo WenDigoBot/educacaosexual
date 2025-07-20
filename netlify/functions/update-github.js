@@ -44,7 +44,7 @@ exports.handler = async (event, context) => {
     }
 
     // Parsear os dados recebidos
-    const { curiosities, password } = JSON.parse(event.body);
+    const { curiosities, rankings, password } = JSON.parse(event.body);
 
     // Verificar senha (mesma senha do frontend)
     if (password !== "admin123") {
@@ -88,8 +88,11 @@ exports.handler = async (event, context) => {
       }
     }
 
-    // Preparar o conteúdo do arquivo
-    const fileContent = JSON.stringify(curiosities, null, 2);
+    // Preparar o conteúdo do arquivo com curiosidades e rankings
+    const fileContent = JSON.stringify({
+      curiosities: curiosities,
+      rankings: rankings || []
+    }, null, 2);
     const encodedContent = Buffer.from(fileContent).toString('base64');
 
     // Criar ou atualizar o arquivo no GitHub

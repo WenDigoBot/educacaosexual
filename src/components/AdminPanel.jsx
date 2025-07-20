@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
 import PasswordPrompt from './PasswordPrompt'; // Importar o componente de senha
 
-const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
+const AdminPanel = ({ curiosities, rankings, onAdd, onEdit, onDelete, onClose }) => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({ text: '', isTrue: true, revelation: '' });
@@ -75,41 +75,41 @@ const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
       setFormData({ text: '', isTrue: true, revelation: '' });
 
       // Após salvar localmente, tentar atualizar no GitHub automaticamente
-      // A lógica de atualização do arquivo JSON será tratada no App.jsx
-      // try {
-      //   const updatedCuriosities = editingId 
-      //     ? curiosities.map(c => c.id === editingId ? { ...c, ...formData } : c)
-      //     : [...curiosities, { id: Date.now(), ...formData }];
+      try {
+        const updatedCuriosities = editingId 
+          ? curiosities.map(c => c.id === editingId ? { ...c, ...formData } : c)
+          : [...curiosities, { id: Date.now(), ...formData }];
 
-      //   const response = await fetch("/.netlify/functions/update-github", {
-      //     method: "POST",
-      //     headers: {
-      //       "Content-Type": "application/json",
-      //     },
-      //     body: JSON.stringify({
-      //       curiosities: updatedCuriosities,
-      //       password: "admin123"
-      //     })
-      //   });
+        const response = await fetch("/.netlify/functions/update-github", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            curiosities: updatedCuriosities,
+            rankings: rankings || [],
+            password: "admin123"
+          })
+        });
 
-      //   const result = await response.json();
+        const result = await response.json();
 
-      //   if (response.ok) {
-      //     toast({
-      //       title: "Atualizando!",
-      //       description: "Ótimo! Suas alterações entrarão em vigor em 3 minutos.",
-      //     });
-      //   } else {
-      //     throw new Error(result.error || "Erro desconhecido");
-      //   }
-      // } catch (error) {
-      //   console.error("Erro ao atualizar:", error);
-      //   toast({
-      //     title: "Aviso",
-      //     description: "Alteração salva localmente, mas não foi possível atualizar permanentemente.",
-      //     variant: "destructive"
-      //   });
-      // }
+        if (response.ok) {
+          toast({
+            title: "Atualizando!",
+            description: "Ótimo! Suas alterações entrarão em vigor em 3 minutos.",
+          });
+        } else {
+          throw new Error(result.error || "Erro desconhecido");
+        }
+      } catch (error) {
+        console.error("Erro ao atualizar:", error);
+        toast({
+          title: "Aviso",
+          description: "Alteração salva localmente, mas não foi possível atualizar permanentemente.",
+          variant: "destructive"
+        });
+      }
     });
     setShowPasswordPrompt(true);
   };
@@ -129,39 +129,39 @@ const AdminPanel = ({ curiosities, onAdd, onEdit, onDelete, onClose }) => {
       });
 
       // Após deletar localmente, tentar atualizar no GitHub automaticamente
-      // A lógica de atualização do arquivo JSON será tratada no App.jsx
-      // try {
-      //   const updatedCuriosities = curiosities.filter(c => c.id !== id);
+      try {
+        const updatedCuriosities = curiosities.filter(c => c.id !== id);
 
-      //   const response = await fetch("/.netlify/functions/update-github", {
-      //     method: "POST",
-      //     headers: {
-      //       "Content-Type": "application/json",
-      //     },
-      //     body: JSON.stringify({
-      //       curiosities: updatedCuriosities,
-      //       password: "admin123"
-      //     })
-      //   });
+        const response = await fetch("/.netlify/functions/update-github", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            curiosities: updatedCuriosities,
+            rankings: rankings || [],
+            password: "admin123"
+          })
+        });
 
-      //   const result = await response.json();
+        const result = await response.json();
 
-      //   if (response.ok) {
-      //     toast({
-      //       title: "Parabéns!",
-      //       description: "A atualização será aplicada em 3 minutos.",
-      //     });
-      //   } else {
-      //     throw new Error(result.error || "Erro desconhecido");
-      //   }
-      // } catch (error) {
-      //   console.error("Erro ao atualizar:", error);
-      //   toast({
-      //     title: "Aviso",
-      //     description: "Remoção feita localmente, mas não foi possível atualizar permanentemente.",
-      //     variant: "destructive"
-      //   });
-      // }
+        if (response.ok) {
+          toast({
+            title: "Parabéns!",
+            description: "A atualização será aplicada em 3 minutos.",
+          });
+        } else {
+          throw new Error(result.error || "Erro desconhecido");
+        }
+      } catch (error) {
+        console.error("Erro ao atualizar:", error);
+        toast({
+          title: "Aviso",
+          description: "Remoção feita localmente, mas não foi possível atualizar permanentemente.",
+          variant: "destructive"
+        });
+      }
     });
     setShowPasswordPrompt(true);
   };
