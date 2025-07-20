@@ -7,6 +7,7 @@ import ParticleSystem from '@/components/ParticleSystem';
 import WelcomePage from '@/components/WelcomePage';
 import NicknamePrompt from '@/components/NicknamePrompt';
 import Ranking from '@/components/Ranking';
+import Podium from '@/components/Podium';
 import PasswordPrompt from '@/components/PasswordPrompt'; // Importar o componente de senha
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/toaster';
@@ -65,6 +66,7 @@ function App() {
   const [score, setScore] = useState(0);
   const [totalQuestions, setTotalQuestions] = useState(0);
   const [showRanking, setShowRanking] = useState(false);
+  const [showPodium, setShowPodium] = useState(false);
   const [rankings, setRankings] = useState([]);
   const [curiosities, setCuriosities] = useState([]);
   const [isLoadingCuriosities, setIsLoadingCuriosities] = useState(true);
@@ -83,14 +85,6 @@ function App() {
   const [showAdminPassword, setShowAdminPassword] = useState(false);
 
   useEffect(() => {
-    // Carregar rankings do localStorage
-    const savedRankings = localStorage.getItem("healthQuizRankings");
-    if (savedRankings) {
-      setRankings(JSON.parse(savedRankings));
-    }
-  }, []);
-
-  useEffect(() => {
     const fetchCuriosities = async () => {
       try {
         // Adiciona um timestamp para cache-busting
@@ -98,7 +92,9 @@ function App() {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const fetchedCuriosities = await response.json();
+        const fetchedData = await response.json();
+        const fetchedCuriosities = fetchedData.curiosities || [];
+        const fetchedRankings = fetchedData.rankings || [];
 
         // Tenta carregar do localStorage e mesclar
         const saved = localStorage.getItem("healthCuriosities");
@@ -118,6 +114,7 @@ function App() {
         } else {
           setCuriosities(fetchedCuriosities);
         }
+        setRankings(fetchedRankings);
       } catch (error) {
         console.error("Erro ao carregar curiosidades:", error);
         toast({
@@ -212,7 +209,12 @@ function App() {
       setRankings(newRankings);
       localStorage.setItem("healthQuizRankings", JSON.stringify(newRankings));
       
-      setShowFinalMessage(true);
+      // Mostrar pódio se houver rankings, senão mostrar mensagem final
+      if (newRankings.length > 0) {
+        setShowPodium(true);
+      } else {
+        setShowFinalMessage(true);
+      }
     }
   };
 
@@ -253,6 +255,7 @@ function App() {
     setViewedCount(1);
     setBackgroundIndex(0);
     setShowFinalMessage(false);
+    setShowPodium(false);
     setScore(0);
     setTotalQuestions(0);
     setShowNickname(true);
@@ -304,6 +307,7 @@ function App() {
         },
         body: JSON.stringify({
           curiosities: curiosities,
+          rankings: rankings,
           password: 'admin123' // A senha será validada na Netlify Function
         })
       });
@@ -335,7 +339,11 @@ function App() {
 
   const downloadUpdatedFile = () => {
     try {
-      const dataStr = JSON.stringify(curiosities, null, 2);
+      const dataToSave = {
+        curiosities: curiosities,
+        rankings: rankings
+      };
+      const dataStr = JSON.stringify(dataToSave, null, 2);
       const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
       
       const exportFileDefaultName = 'curiosities.json';
@@ -414,6 +422,17 @@ function App() {
     return <NicknamePrompt onStart={handleNicknameSubmit} />;
   }
 
+  if (showPodium) {
+    return (
+      <Podium
+        rankings={rankings}
+        currentPlayer={{ nickname: playerNickname, score: score, total: totalQuestions }}
+        onClose={() => setShowPodium(false)}
+        onRestart={handleReset}
+      />
+    );
+  }
+
   if (isLoadingCuriosities) {
     return (
       <div className="h-screen w-screen flex items-center justify-center bg-gradient-to-br from-purple-800 via-blue-800 to-indigo-900 text-white text-2xl font-bold">
@@ -476,7 +495,7 @@ function App() {
             </Button>
             
             <Button
-              onClick={() => setShowAdmin(!showAdmin)}
+              onClick={() => setShowAdminPassword(true)}
               variant="outline"
               size="icon"
               className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 w-8 h-8"
@@ -569,6 +588,16 @@ function App() {
             )}
           </AnimatePresence>
         </main>
+
+        {showAdminPassword && (
+          <PasswordPrompt
+            onAuthenticate={() => {
+              setShowAdminPassword(false);
+              setShowAdmin(true);
+            }}
+            onClose={() => setShowAdminPassword(false)}
+          />
+        )}
 
         {showAdmin && (
           <AdminPanel
