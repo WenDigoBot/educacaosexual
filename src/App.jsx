@@ -228,12 +228,8 @@ function App() {
         console.error("Erro ao salvar rankings:", error);
       }
       
-      // Mostrar pódio se houver rankings, senão mostrar mensagem final
-      if (newRankings.length > 0) {
-        setShowPodium(true);
-      } else {
-        setShowFinalMessage(true);
-      }
+      // Ir direto para a página final
+      setShowFinalMessage(true);
     }
   };
 
@@ -491,6 +487,16 @@ function App() {
             >
               <span className="text-xs sm:text-sm text-white font-medium" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
                 {playerNickname}: {score}/{totalQuestions}
+              </span>
+            </motion.div>
+            
+            {/* Contador detalhado */}
+            <motion.div 
+              className="bg-white/10 backdrop-blur-sm rounded-full px-2 py-1 sm:px-3 sm:py-1 border border-white/20"
+              whileHover={{ scale: 1.05 }}
+            >
+              <span className="text-xs sm:text-sm text-white font-medium" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
+                {currentIndex + 1}/{curiosities.length} | ✅ {score}
               </span>
             </motion.div>
             

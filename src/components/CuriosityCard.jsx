@@ -264,11 +264,11 @@ const CuriosityCard = ({ curiosity, onNext, onPrevious, currentIndex, isLast, di
         >
           <Button
             onClick={handleFlip}
-            disabled={!isFlipped}
+            disabled={!showResult}
             className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-500 disabled:to-gray-600 text-white font-bold px-6 sm:px-8 py-2 sm:py-3 text-base sm:text-lg rounded-full flex items-center gap-2 shadow-lg hover:shadow-xl disabled:opacity-50"
             whileTap={{ scale: 0.95 }}
           >
-            {!isFlipped ? 'Aguarde...' : (isLast ? 'Finalizar' : 'Próxima')}
+            {!showResult ? 'Responda primeiro' : (isLast ? 'Finalizar' : 'Próxima')}
             <ChevronRight className="w-5 h-5" />
           </Button>
         </motion.div>
