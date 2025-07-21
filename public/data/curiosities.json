@@ -41,18 +41,6 @@
       "text": "Usar duas camisinhas ao mesmo tempo protege mais.",
       "isTrue": false,
       "revelation": "Cuidado com essa ideia! Usar duas camisinhas ao mesmo tempo aumenta o atrito entre elas e pode causar rompimentos, diminuindo a proteção."
-    },
-    {
-      "id": 1753054256564,
-      "text": "e",
-      "isTrue": true,
-      "revelation": "egf"
-    },
-    {
-      "id": 1753054356679,
-      "text": "tet",
-      "isTrue": false,
-      "revelation": "ee"
     }
   ],
   "rankings": [
@@ -76,13 +64,7 @@
       "total": 7,
       "timestamp": 1679059200000,
       "date": "17/03/2023"
-    },
-    {
-      "nickname": "novo1",
-      "score": 3,
-      "total": 8,
-      "timestamp": 1753054307741,
-      "date": "20/07/2025"
     }
   ]
 }
+
