@@ -228,8 +228,12 @@ function App() {
         console.error("Erro ao salvar rankings:", error);
       }
       
-      // Ir direto para a página final
-      setShowFinalMessage(true);
+      // Mostrar pódio se houver rankings, senão mostrar mensagem final
+      if (newRankings.length > 0) {
+        setShowPodium(true);
+      } else {
+        setShowFinalMessage(true);
+      }
     }
   };
 
@@ -443,7 +447,10 @@ function App() {
       <Podium
         rankings={rankings}
         currentPlayer={{ nickname: playerNickname, score: score, total: totalQuestions }}
-        onClose={() => setShowPodium(false)}
+        onClose={() => {
+          setShowPodium(false);
+          setShowFinalMessage(true);
+        }}
         onRestart={handleReset}
       />
     );

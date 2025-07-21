@@ -292,7 +292,7 @@ const Podium = ({ rankings, currentPlayer, onClose, onRestart }) => {
             variant="outline"
             className="flex-1 bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20"
           >
-            Fechar
+            Ver Página Final
           </Button>
           <Button
             onClick={onRestart}
