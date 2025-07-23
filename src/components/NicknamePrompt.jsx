@@ -5,11 +5,12 @@ import { Button } from '@/components/ui/button';
 
 const NicknamePrompt = ({ onStart }) => {
   const [nickname, setNickname] = useState('');
+  const [turma, setTurma] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (nickname.trim()) {
-      onStart(nickname.trim());
+    if (nickname.trim() && turma.trim()) {
+      onStart(nickname.trim(), turma.trim());
     }
   };
 
@@ -86,6 +87,21 @@ const NicknamePrompt = ({ onStart }) => {
                 className="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent text-center text-lg"
                 maxLength={20}
                 autoFocus
+              />
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.4 }}
+            >
+              <input
+                type="text"
+                value={turma}
+                onChange={(e) => setTurma(e.target.value)}
+                placeholder="Sua turma..."
+                className="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent text-center text-lg"
+                maxLength={20}
               />
             </motion.div>
 

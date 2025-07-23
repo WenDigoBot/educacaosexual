@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Settings, Heart, Shield, Brain, Download, Trophy } from 'lucide-react';
+import { Settings, Heart, Shield, Brain, Download, Trophy, VolumeX, Volume2 } from 'lucide-react';
 import CuriosityCard from '@/components/CuriosityCard';
 import AdminPanel from '@/components/AdminPanel';
 import ParticleSystem from '@/components/ParticleSystem';
@@ -62,7 +62,8 @@ const cardVariants = {
 function App() {
   const [showWelcome, setShowWelcome] = useState(true);
   const [showNickname, setShowNickname] = useState(false);
-  const [playerNickname, setPlayerNickname] = useState('');
+  const [playerNickname, setPlayerNickname] = useState("");
+  const [playerTurma, setPlayerTurma] = useState("");
   const [score, setScore] = useState(0);
   const [totalQuestions, setTotalQuestions] = useState(0);
   const [showRanking, setShowRanking] = useState(false);
@@ -84,6 +85,8 @@ function App() {
   const [isCardTransitioning, setIsCardTransitioning] = useState(false);
   const [showDownloadPassword, setShowDownloadPassword] = useState(false);
   const [showAdminPassword, setShowAdminPassword] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const audioRef = useRef(null);
 
   useEffect(() => {
     const fetchCuriosities = async () => {
@@ -137,6 +140,22 @@ function App() {
   }, []); // Executa apenas uma vez ao montar o componente
 
   useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = 0.2; // Define o volume inicial
+      audioRef.current.loop = true; // Define para repetir a música
+      audioRef.current.play().catch(error => {
+        console.log("Reprodução automática bloqueada. O usuário precisará interagir para iniciar a música.", error);
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.muted = isMuted;
+    }
+  }, [isMuted]);
+
+  useEffect(() => {
     // Salva no localStorage sempre que as curiosidades mudam
     localStorage.setItem("healthCuriosities", JSON.stringify(curiosities));
   }, [curiosities]);
@@ -146,8 +165,9 @@ function App() {
     setShowNickname(true);
   };
 
-  const handleNicknameSubmit = (nickname) => {
+  const handleNicknameSubmit = (nickname, turma) => {
     setPlayerNickname(nickname);
+    setPlayerTurma(turma);
     setShowNickname(false);
     setScore(0);
     setTotalQuestions(0);
@@ -196,10 +216,11 @@ function App() {
       // Finalizar quiz e salvar no ranking
       const finalScore = {
         nickname: playerNickname,
+        turma: playerTurma,
         score: score,
         total: totalQuestions,
         timestamp: Date.now(),
-        date: new Date().toLocaleDateString('pt-BR')
+        date: new Date().toLocaleDateString("pt-BR")
       };
       
       const newRankings = [...rankings, finalScore]
@@ -446,7 +467,7 @@ function App() {
     return (
       <Podium
         rankings={rankings}
-        currentPlayer={{ nickname: playerNickname, score: score, total: totalQuestions }}
+        currentPlayer={{ nickname: playerNickname, turma: playerTurma, score: score, total: totalQuestions }}
         onClose={() => {
           setShowPodium(false);
           setShowFinalMessage(true);
@@ -475,6 +496,8 @@ function App() {
       />
       
       <ParticleSystem />
+
+      <audio ref={audioRef} src="/audio/background_music.mp3" preload="auto" />
       
       <div className="relative z-10 h-full w-full flex flex-col">
         <header className="p-3 sm:p-4 flex flex-wrap justify-between items-center">
@@ -525,6 +548,16 @@ function App() {
               title="Baixar arquivo atualizado"
             >
               <Download className="w-4 h-4" />
+            </Button>
+            
+            <Button
+              onClick={() => setIsMuted(prev => !prev)}
+              variant="outline"
+              size="icon"
+              className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 w-8 h-8"
+              title={isMuted ? "Desmutar música" : "Mutar música"}
+            >
+              {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
             </Button>
             
             <Button

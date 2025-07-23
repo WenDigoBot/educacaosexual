@@ -7,6 +7,7 @@ const Podium = ({ rankings, currentPlayer, onClose, onRestart }) => {
   const topThree = rankings.slice(0, 3);
   const currentPlayerRank = rankings.findIndex(
     player => player.nickname === currentPlayer?.nickname && 
+              player.turma === currentPlayer?.turma &&
               player.score === currentPlayer?.score &&
               player.total === currentPlayer?.total
   ) + 1;
@@ -116,6 +117,9 @@ const Podium = ({ rankings, currentPlayer, onClose, onRestart }) => {
                     {topThree[1].nickname}
                   </div>
                   <div className="text-white/70 text-xs">
+                    Turma: {topThree[1].turma}
+                  </div>
+                  <div className="text-white/70 text-xs">
                     {topThree[1].score}/{topThree[1].total}
                   </div>
                 </div>
@@ -150,6 +154,9 @@ const Podium = ({ rankings, currentPlayer, onClose, onRestart }) => {
                   </motion.div>
                   <div className="text-white font-bold">
                     {topThree[0].nickname}
+                  </div>
+                  <div className="text-white/70 text-sm">
+                    Turma: {topThree[0].turma}
                   </div>
                   <div className="text-white/70 text-sm">
                     {topThree[0].score}/{topThree[0].total}
@@ -188,6 +195,9 @@ const Podium = ({ rankings, currentPlayer, onClose, onRestart }) => {
                   </div>
                   <div className="text-white font-bold text-sm">
                     {topThree[2].nickname}
+                  </div>
+                  <div className="text-white/70 text-xs">
+                    Turma: {topThree[2].turma}
                   </div>
                   <div className="text-white/70 text-xs">
                     {topThree[2].score}/{topThree[2].total}
@@ -266,7 +276,7 @@ const Podium = ({ rankings, currentPlayer, onClose, onRestart }) => {
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
                         <span className="text-white font-medium text-sm">
-                          {player.nickname}
+                          {player.nickname} - {player.turma}
                         </span>
                         {isCurrentPlayer && (
                           <span className="text-xs bg-blue-500 text-white px-2 py-1 rounded-full">
