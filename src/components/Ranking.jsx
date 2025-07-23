@@ -46,24 +46,30 @@ const Ranking = ({ rankings, currentPlayer, onClose, onRestart }) => {
         <div className="text-center mb-6">
           <motion.div
             className="flex justify-center mb-4"
-            animate={{ 
+            animate={{
               rotate: [0, 10, -10, 0],
-              scale: [1, 1.1, 1]
+              scale: [1, 1.1, 1],
             }}
-            transition={{ 
+            transition={{
               duration: 3,
               repeat: Infinity,
-              ease: "easeInOut"
+              ease: 'easeInOut',
             }}
           >
             <Trophy className="w-12 h-12 text-yellow-400" />
           </motion.div>
-          
-          <h2 className="text-2xl font-bold text-white mb-2" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>
+
+          <h2
+            className="text-2xl font-bold text-white mb-2"
+            style={{ textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}
+          >
             🏆 Ranking
           </h2>
-          
-          <p className="text-white/80" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}>
+
+          <p
+            className="text-white/80"
+            style={{ textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}
+          >
             Melhores pontuações
           </p>
         </div>
@@ -76,9 +82,10 @@ const Ranking = ({ rankings, currentPlayer, onClose, onRestart }) => {
           ) : (
             rankings.map((player, index) => {
               const position = index + 1;
-              const isCurrentPlayer = player.nickname === currentPlayer?.nickname && 
-                                    player.score === currentPlayer?.score;
-              
+              const isCurrentPlayer =
+                player.nickname === currentPlayer?.nickname &&
+                player.score === currentPlayer?.score;
+
               return (
                 <motion.div
                   key={`${player.nickname}-${player.timestamp}`}
@@ -90,10 +97,14 @@ const Ranking = ({ rankings, currentPlayer, onClose, onRestart }) => {
                   transition={{ delay: index * 0.1 }}
                   whileHover={{ scale: 1.02 }}
                 >
-                  <div className={`flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-r ${getRankColor(position)}`}>
+                  <div
+                    className={`flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-r ${getRankColor(
+                      position
+                    )}`}
+                  >
                     {getRankIcon(position)}
                   </div>
-                  
+
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <span className="font-bold text-white text-lg">
@@ -108,11 +119,17 @@ const Ranking = ({ rankings, currentPlayer, onClose, onRestart }) => {
                         </span>
                       )}
                     </div>
+                    {/* Turma logo abaixo do nome */}
+                    <div className="text-xs text-white/50 italic">
+                      Turma: {player.turma || '—'}
+                    </div>
                     <div className="text-sm text-white/70">
-                      {player.score} {player.score === 1 ? 'ponto' : 'pontos'} • {player.total} {player.total === 1 ? 'pergunta' : 'perguntas'}
+                      {player.score} {player.score === 1 ? 'ponto' : 'pontos'} •{' '}
+                      {player.total}{' '}
+                      {player.total === 1 ? 'pergunta' : 'perguntas'}
                     </div>
                   </div>
-                  
+
                   <div className="text-right">
                     <div className="text-lg font-bold text-white">
                       {player.score}
@@ -148,4 +165,3 @@ const Ranking = ({ rankings, currentPlayer, onClose, onRestart }) => {
 };
 
 export default Ranking;
-
