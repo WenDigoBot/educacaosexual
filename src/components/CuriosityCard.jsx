@@ -161,7 +161,7 @@ const CuriosityCard = ({ curiosity, onNext, onPrevious, currentIndex, isLast, di
                       (userAnswer === curiosity?.isTrue) ? 'text-green-400' : 'text-red-400'
                     }`}
                   >
-                    {(userAnswer === curiosity.isTrue) ? '✅ Certo!' : '❌ Errado!'}
+                    {(userAnswer === curiosity.isTrue) ? '❓' : '❓'}
                   </motion.div>
                   <p className="text-xs sm:text-sm text-white/70" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.4)' }}>
                     Aguarde a revelação...
