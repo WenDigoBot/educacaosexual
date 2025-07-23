@@ -2,69 +2,156 @@
   "curiosities": [
     {
       "id": 1,
-      "text": "O preservativo masculino tem 98% de eficácia quando usado corretamente.",
-      "isTrue": true,
-      "revelation": "Isso mesmo! Quando usado de forma consistente e correta, o preservativo é altamente eficaz na prevenção da gravidez e ISTs."
+      "text": "Meninas não engravidam na primeira relação sexual.",
+      "isTrue": false,
+      "revelation": "A gravidez pode acontecer em qualquer relação desprotegida, mesmo na primeira vez."
     },
     {
       "id": 2,
-      "text": "A pílula anticoncepcional protege contra todas as ISTs.",
+      "text": "Camisinhas podem ser usadas mais de uma vez.",
       "isTrue": false,
-      "revelation": "Na verdade, a pílula anticoncepcional é um método hormonal que previne a gravidez, mas não oferece proteção contra Infecções Sexualmente Transmissíveis (ISTs). Para proteção contra ISTs, o uso de preservativos é essencial."
+      "revelation": "A camisinha deve ser usada uma única vez e descartada logo após. Reutilizar aumenta os riscos de falha e infecção."
     },
     {
       "id": 3,
-      "text": "É possível engravidar durante a menstruação.",
-      "isTrue": true,
-      "revelation": "Isso mesmo! Embora menos provável, a ovulação pode ocorrer perto do período menstrual ou o espermatozoide pode sobreviver no corpo por alguns dias, tornando a gravidez possível."
+      "text": "Educação sexual incentiva o início precoce da vida sexual.",
+      "isTrue": false,
+      "revelation": "Pelo contrário, ela promove escolhas conscientes, seguras e com mais responsabilidade."
     },
     {
       "id": 4,
-      "text": "O HPV pode causar câncer de colo do útero.",
+      "text": "Sexo sem camisinha transmite doenças mesmo que a pessoa pareça saudável.",
       "isTrue": true,
-      "revelation": "Isso mesmo! Certos tipos de HPV são a principal causa de câncer de colo do útero. A vacinação e exames preventivos são importantes."
+      "revelation": "Muitas ISTs são silenciosas, sem sintomas visíveis, mas ainda assim contagiosas."
     },
     {
       "id": 5,
-      "text": "Fazer xixi após a relação sexual previne 100% das infecções urinárias.",
-      "isTrue": false,
-      "revelation": "Na verdade, urinar após a relação sexual pode ajudar a eliminar bactérias da uretra, reduzindo o risco de infecção urinária, mas não garante 100% de prevenção. Outras medidas de higiene também são importantes."
+      "text": "A camisinha previne tanto gravidez quanto infecções sexualmente transmissíveis.",
+      "isTrue": true,
+      "revelation": "É o único método com proteção dupla: contra ISTs e gravidez."
     },
     {
       "id": 6,
-      "text": "A camisinha feminina é tão eficaz quanto a masculina.",
-      "isTrue": true,
-      "revelation": "Isso mesmo! Quando usada corretamente, a camisinha feminina oferece um nível de proteção similar à masculina contra gravidez e ISTs."
+      "text": "Tomar anticoncepcional por conta própria é seguro.",
+      "isTrue": false,
+      "revelation": "O uso sem orientação médica pode causar desequilíbrios hormonais e efeitos colaterais graves."
     },
     {
       "id": 7,
-      "text": "Usar duas camisinhas ao mesmo tempo protege mais.",
+      "text": "Educação sexual ensina sobre consentimento.",
+      "isTrue": true,
+      "revelation": "Um dos principais temas abordados é o respeito aos próprios limites e aos dos outros."
+    },
+    {
+      "id": 8,
+      "text": "Anticoncepcional hormonal protege contra ISTs.",
       "isTrue": false,
-      "revelation": "Cuidado com essa ideia! Usar duas camisinhas ao mesmo tempo aumenta o atrito entre elas e pode causar rompimentos, diminuindo a proteção."
+      "revelation": "Ele previne a gravidez, mas não protege contra infecções. A camisinha continua sendo essencial."
+    },
+    {
+      "id": 9,
+      "text": "A pílula do dia seguinte pode ser usada como método contraceptivo regular.",
+      "isTrue": false,
+      "revelation": "Ela é um recurso de emergência. Usos frequentes causam desregulação hormonal e não garantem eficácia."
+    },
+    {
+      "id": 10,
+      "text": "O uso da camisinha é responsabilidade apenas do homem.",
+      "isTrue": false,
+      "revelation": "A proteção é uma responsabilidade compartilhada por ambos na relação."
+    },
+    {
+      "id": 11,
+      "text": "Educação sexual ajuda na prevenção de abuso sexual.",
+      "isTrue": true,
+      "revelation": "Ensina sobre o corpo, limites e direitos, ajudando crianças e jovens a se protegerem."
+    },
+    {
+      "id": 12,
+      "text": "A camisinha feminina também é eficaz na prevenção de ISTs e gravidez.",
+      "isTrue": true,
+      "revelation": "Assim como a masculina, oferece proteção dupla e pode ser usada por quem prefere mais autonomia."
+    },
+    {
+      "id": 13,
+      "text": "Existe método contraceptivo masculino além da camisinha.",
+      "isTrue": true,
+      "revelation": "Além da camisinha, existe a vasectomia, um método cirúrgico eficaz e definitivo, para prevenir gravidez indesejada."
+    },
+    {
+      "id": 14,
+      "text": "Anticoncepcionais podem causar efeitos colaterais e precisam de acompanhamento médico.",
+      "isTrue": true,
+      "revelation": "Cada corpo reage de forma diferente aos hormônios, então é fundamental ter prescrição e acompanhamento profissional."
+    },
+    {
+      "id": 15,
+      "text": "A PEP precisa ser iniciada até 72 horas após o contato de risco e tomada por 28 dias seguidos.",
+      "isTrue": true,
+      "revelation": "A PEP (profilaxia pós-exposição) é uma emergência. Quanto mais cedo for iniciada, maior a eficácia. O tratamento completo dura 28 dias."
+    },
+    {
+      "id": 16,
+      "text": "Antibióticos são eficazes contra vírus como o HIV.",
+      "isTrue": false,
+      "revelation": "Antibióticos combatem apenas bactérias. HIV é um vírus, e exige tratamento específico com antivirais."
+    },
+    {
+      "id": 17,
+      "text": "A PrEP pode ser retirada gratuitamente no SUS com acompanhamento médico.",
+      "isTrue": true,
+      "revelation": "Sim! Está disponível em unidades especializadas para pessoas com risco de exposição ao HIV, com exames regulares."
+    },
+    {
+      "id": 18,
+      "text": "Tomar antibiótico antes da relação sexual previne ISTs.",
+      "isTrue": false,
+      "revelation": "Isso é um mito perigoso. Antibióticos não têm efeito preventivo contra ISTs e o uso indevido pode trazer riscos."
+    },
+    {
+      "id": 19,
+      "text": "A pílula anticoncepcional protege contra gravidez e contra ISTs como o HIV.",
+      "isTrue": false,
+      "revelation": "Ela protege apenas contra gravidez. Para se proteger de ISTs, é necessário usar camisinha."
+    },
+    {
+      "id": 20,
+      "text": "Existem antivirais que ajudam a controlar a herpes genital.",
+      "isTrue": true,
+      "revelation": "Sim! Esses medicamentos não curam a herpes, mas reduzem as crises e diminuem a transmissão."
+    },
+    {
+      "id": 21,
+      "text": "Se a pessoa não tem sintomas, não precisa tratar uma IST.",
+      "isTrue": false,
+      "revelation": "Muitas ISTs são assintomáticas, mas continuam sendo transmitidas. Exames e tratamento são sempre necessários."
+    },
+    {
+      "id": 22,
+      "text": "A PEP substitui a camisinha e pode ser usada sempre que eu esquecer de me proteger.",
+      "isTrue": false,
+      "revelation": "A PEP é uma medida de emergência, não deve ser usada frequentemente. Pode causar efeitos colaterais e só funciona se usada até 72h após o risco."
+    },
+    {
+      "id": 23,
+      "text": "A PEP é indicada também para vítimas de violência sexual.",
+      "isTrue": true,
+      "revelation": "Sim. Nesses casos, o ideal é buscar atendimento o quanto antes, de preferência nas primeiras horas após a exposição."
+    },
+    {
+      "id": 24,
+      "text": "Se eu tomar PrEP uma vez antes da relação sexual, já estou protegido contra o HIV.",
+      "isTrue": false,
+      "revelation": "Não. A PrEP precisa ser usada diariamente por pelo menos 7 dias para começar a proteger."
     }
   ],
   "rankings": [
     {
-      "nickname": "Jogador1",
-      "score": 7,
-      "total": 7,
-      "timestamp": 1678886400000,
-      "date": "15/03/2023"
-    },
-    {
-      "nickname": "Jogador2",
-      "score": 6,
-      "total": 7,
-      "timestamp": 1678972800000,
-      "date": "16/03/2023"
-    },
-    {
-      "nickname": "Jogador3",
-      "score": 5,
-      "total": 7,
-      "timestamp": 1679059200000,
-      "date": "17/03/2023"
+      "nickname": "Jociel",
+      "score": 24,
+      "total": 24,
+      "timestamp": 1721692800000,
+      "date": "23/07/2025"
     }
   ]
 }
-
